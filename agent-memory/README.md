@@ -1,50 +1,50 @@
 # Agent Memory Sessions
 
-这个目录存储 AI agent 的记忆 - 开发 agent-memory 技能过程中的决策记录。
+This directory stores the AI agent's memory - decision records from developing the agent-memory skill.
 
-## 目录结构
+## Directory Structure
 
 ```
 agent-memory/
-├── index.yaml              # 会话索引（自动维护）
-├── IMPROVEMENTS.md         # 规则缺口日志（自我改进）
-├── template.md             # 会话文件模板
-├── README.md               # 本文件
-└── YYYY-MM-DD/            # 按日期组织
-    └── HH-MM-topic.md     # 会话记录
+├── index.yaml              # session index (auto-maintained)
+├── IMPROVEMENTS.md         # rule-gap log (self-improvement)
+├── template.md             # session file template
+├── README.md               # this file
+└── YYYY-MM-DD/            # organized by date
+    └── HH-MM-topic.md     # session records
 ```
 
-## 使用说明
+## How It Works
 
-这是一个**自动**系统：
+This is an **automatic** system:
 
-- **Auto-save（自动保存）**: 当检测到决策信号时，agent 会自动保存，无需你主动要求
-- **Auto-recall（自动回忆）**: 每次会话开始时，agent 会自动读取最近的决策记录
+- **Auto-save**: The agent automatically saves when decision signals are detected - you don't need to ask
+- **Auto-recall**: At the start of each session, the agent automatically reads recent decision records
 
-## 自我改进机制
+## Self-Improvement Mechanism
 
-如果某个决策应该被记录但没有被自动保存，只需说：
+If a decision should have been recorded but wasn't saved automatically, just say:
 
 - "这条刚才没记下来"
 - "you didn't save that"
 - "漏了"
 
-Agent 会：
-1. 立即补记这个决策
-2. 在 `IMPROVEMENTS.md` 中记录这个缺口，用于改进触发规则
+The agent will:
+1. Immediately save the missed decision (recovery)
+2. Record the gap in `IMPROVEMENTS.md` to improve trigger rules (prevention)
 
-## Git 管理
+## Git Management
 
-建议将这个目录提交到仓库，以支持：
-- 跨机器的知识延续
-- 团队协作时的决策共享
-- 项目历史的完整记录
+Recommended to commit this directory to the repository to support:
+- Knowledge continuity across machines
+- Decision sharing in team collaboration
+- Complete project history
 
 ```bash
 git add agent-memory/
 git commit -m "docs: record AI session - [topic]"
 ```
 
-## 关于这个项目
+## About This Project
 
-这个 `agent-memory/` 目录是 agent-memory 技能**自己**产生的 - 我们在开发这个技能的同时，用它来记录开发过程中的决策。这是最严格的测试：如果技能连自己的开发都支撑不了，怎么推荐给其他人？
+This `agent-memory/` directory is produced by the agent-memory skill **itself** - we're using it to record decisions made while developing the skill. This is the strictest test: if the skill can't support its own development, how can we recommend it to others?
