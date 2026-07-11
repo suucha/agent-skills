@@ -17,27 +17,7 @@ read this file as their work list.
 
 ## Open
 
-### GAP-001 — Auto-save deprioritized mid-conversation (attention competition)
-- **Date found**: 2026-07-10
-- **Symptom**: multi-decision conversation produced zero saves; agent completed
-  the user's task but treated the save instruction as background noise.
-- **Root cause**: save runs mid-conversation, where the active user task
-  outcompetes the meta-instruction for attention.
-- **Fix applied**: added the "self-check before sending EVERY response"
-  checkpoint — a forced end-of-reply check, not just a signal list.
-- **Status**: [resolved 2026-07-10] checkpoint mechanism added to SKILL.md / AGENTS.md / CLAUDE.md.
-
-### GAP-002 — Negative decisions ("decide NOT to do something") not recognized
-- **Date found**: 2026-07-10
-- **Symptom**: user said "保持现状不动" (decided NOT to add a summary field to
-  index.yaml); agent confirmed but did not save — the phrase reads as a
-  non-event, not a decision.
-- **Root cause**: trigger signal list only had *affirmative* decisions
-  ("就这样定", "用这个方案", ...). "Decide not to" had no matching category.
-- **Fix applied**: added "Decision to NOT do something" as a first-class
-  category (保持现状 / 不动了 / 不用加 / 暂不需要 / 先这样吧 / not now / leave it /
-  skip this / decided against).
-- **Status**: [resolved 2026-07-10] new category added to all three rule files.
+(gap entries will be added here as they are discovered)
 
 ---
 
