@@ -4,7 +4,7 @@ A standard session file template that supports recording multiple decision point
 
 > **CRITICAL: This structure must be followed strictly.** Agents rely on this standardized format to extract decisions reliably. Each `###` heading within the "Discussion points and decisions" section represents one decision point and MUST include **Problem**, **Decision**, and **Rationale** fields. Do not deviate from this structure.
 
-> **Language note:** Write the whole file in the language the user is conversing in — unless the user explicitly asks for a specific language, in which case honor their choice. The English headings below show the structure; translate them along with the content when the user speaks another language. Do not leave the headings in English if the session itself is, say, Chinese.
+> **Language note:** Write the *content* in the language the user is conversing in (unless they explicitly ask for a specific language). **Field names (`Problem`, `Options`, `Decision`, `Rationale`) are always English** — they are structural markers, not content. Section titles (`### N. [title]`) and all body text translate with the session's language.
 
 ---
 

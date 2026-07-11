@@ -47,8 +47,8 @@ read this file as their work list.
   - Agent 没有在执行前问："这一轮用户做决策了吗？"
   - 规则已明确："decision + task → save FIRST, then execute"，但未被执行
   - 这是 GAP-001 的变种：即使有 self-check，当任务非常具体时仍会被压制
-- **Fix applied**: 补记了这个决策（决策点 #10）
-- **Status**: open - 需要加强 self-check 的优先级或在提示词中增加"用户选择方案"作为明确的决策信号
+- **Fix applied**: 补记了这个决策（决策点 #10）；self-check 规则已在 SKILL.md Step 3.1b
+- **Status**: [resolved 2026-07-11] 用户实测确认规则已执行；本次会话也在执行该规则（先保存决策 14-17，再执行后续任务）
 
 ---
 

@@ -100,13 +100,13 @@ carries it forward.**
 
 ### Auto-recall (at the start of every session)
 
-Before responding substantively, read `agent-memory/index.yaml` for the recent session list (newest first, up to ~5). For each session:
-- Read `subTopics` from index.yaml (quick overview of what was discussed)
-- Open the file and extract all `### [title]` sections from `## Discussion points and decisions`
-- For each section, extract: **Problem**, **Decision**, **Rationale**
-- Skip low-priority sections: Execution plan, Related content, Follow-ups
+Two-layer recall — cheap scan first, deep read only when relevant:
 
-Carry that context forward and surface it briefly: "I've reviewed the last N sessions — we decided X because Y…" This ensures you never re-litigate settled decisions or propose approaches already rejected. **This is what makes the system "memory" rather than an archive.**
+1. **Lightweight scan**: read `agent-memory/index.yaml`, scan ALL sessions' `subTopics`, judge which sessions are relevant to the current question
+2. **Deep extraction**: for each relevant session, open the file, extract Problem/Decision/Rationale from each `###` subsection under `## Discussion points and decisions`
+3. **Fallback**: if no sessions match by subTopics, read the ~5 most recent sessions in full
+
+Surface it briefly: "I've reviewed the last N sessions — we decided X because Y…" This ensures you never re-litigate settled decisions or propose approaches already rejected. **This is what makes the system "memory" rather than an archive.**
 
 ### Auto-save (when decision signals are detected)
 
@@ -139,8 +139,8 @@ If you find yourself about to describe a decision you just made or helped make, 
 1. **Read the template** — read `agent-memory/template.md` first to understand the format
 2. **Sanitize content** — remove sensitive information (passwords, keys, PII, etc.)
 3. **Decide: append or create new**:
-   - Append if: session file exists for today AND `lastUpdated` in index.yaml is within ~3 hours AND topic is related
-   - Create new if: no session file for today OR last update >3 hours ago OR topic changed significantly
+   - **Primary signal — topic continuity**: append if the current decision continues the same topic as the most recent session; create new if the topic has significantly changed
+   - **Secondary hint — time gap**: if `lastUpdated` is >3 hours ago, check topic continuity carefully (but 3h is NOT a hard rule — a 6h same-topic session still appends; a 1h topic-switch still creates new)
 4. **When appending**:
    - Add new `### N. [Decision title]` section to `## Discussion points and decisions`
    - Update `index.yaml`: increment `decisions`, update `lastUpdated`, append to `subTopics`
