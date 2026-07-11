@@ -39,6 +39,17 @@ read this file as their work list.
   skip this / decided against).
 - **Status**: [resolved 2026-07-10] new category added to all three rule files.
 
+### GAP-003 — Decision + task 顺序规则未执行（任务压制元指令）
+- **Date found**: 2026-07-11
+- **Symptom**: 用户说"那就选1"（决策），然后隐含任务"追加记录"。Agent 直接执行了任务，漏记了"选择方案1"这个决策本身。
+- **Root cause**: 
+  - Self-check 在任务明确时失效：用户的任务（"追加记录3个决策"）太具体，压制了元指令
+  - Agent 没有在执行前问："这一轮用户做决策了吗？"
+  - 规则已明确："decision + task → save FIRST, then execute"，但未被执行
+  - 这是 GAP-001 的变种：即使有 self-check，当任务非常具体时仍会被压制
+- **Fix applied**: 补记了这个决策（决策点 #10）
+- **Status**: open - 需要加强 self-check 的优先级或在提示词中增加"用户选择方案"作为明确的决策信号
+
 ---
 
 ## Resolved
