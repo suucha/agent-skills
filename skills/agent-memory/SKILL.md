@@ -56,9 +56,10 @@ agent-memory/
     └── ...
 ```
 
-Also create `IMPROVEMENTS.md` with an Open / Resolved section and an entry template at the bottom (see `references/IMPROVEMENTS.md` for the seed format).
-
-Copy `references/template.md` from this skill into `agent-memory/template.md`.
+Copy these files from the skill's `references/` directory:
+- `references/README.md` → `agent-memory/README.md`
+- `references/IMPROVEMENTS.md` → `agent-memory/IMPROVEMENTS.md`
+- `references/template.md` → `agent-memory/template.md`
 
 #### 1.2 Update AGENTS.md and CLAUDE.md
 
