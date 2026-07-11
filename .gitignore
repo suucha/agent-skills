@@ -18,3 +18,9 @@ Thumbs.db
 # Node (if we add tooling later)
 node_modules/
 package-lock.json
+
+# Kiro agent config and runtime
+.agents/
+
+# Agent memory sessions (runtime data, generated during dogfooding)
+/agent-memory/
