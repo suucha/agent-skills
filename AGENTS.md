@@ -100,7 +100,13 @@ carries it forward.**
 
 ### Auto-recall (at the start of every session)
 
-Before responding substantively, read `agent-memory/index.yaml` for the recent session list (newest first, up to ~5), then read each referenced file to extract decisions and rationale, and carry that context forward. Surface it briefly: "I've reviewed the last N sessions — we decided X because Y…" This ensures you never re-litigate settled decisions or propose approaches already rejected. **This is what makes the system "memory" rather than an archive.**
+Before responding substantively, read `agent-memory/index.yaml` for the recent session list (newest first, up to ~5). For each session:
+- Read `subTopics` from index.yaml (quick overview of what was discussed)
+- Open the file and extract all `### [title]` sections from `## Discussion points and decisions`
+- For each section, extract: **Problem**, **Decision**, **Rationale**
+- Skip low-priority sections: Execution plan, Related content, Follow-ups
+
+Carry that context forward and surface it briefly: "I've reviewed the last N sessions — we decided X because Y…" This ensures you never re-litigate settled decisions or propose approaches already rejected. **This is what makes the system "memory" rather than an archive.**
 
 ### Auto-save (when decision signals are detected)
 
@@ -132,10 +138,36 @@ If you find yourself about to describe a decision you just made or helped make, 
 
 1. **Read the template** — read `agent-memory/template.md` first to understand the format
 2. **Sanitize content** — remove sensitive information (passwords, keys, PII, etc.)
-3. **Create/append the file** — `agent-memory/YYYY-MM-DD/HH-MM-topic.md` (prefer appending a decision section to today's file if one is in progress)
-4. **Fill it in using the template** — capture the *why* and *how*, not transcripts
-5. **Update the index** — append an entry to `agent-memory/index.yaml` (newest first) with date, time, topic, file path, type, and decision count
-6. **Tell the user** — where it was saved, what was captured, what was sanitized
+3. **Decide: append or create new**:
+   - Append if: session file exists for today AND `lastUpdated` in index.yaml is within ~3 hours AND topic is related
+   - Create new if: no session file for today OR last update >3 hours ago OR topic changed significantly
+4. **When appending**:
+   - Add new `### N. [Decision title]` section to `## Discussion points and decisions`
+   - Update `index.yaml`: increment `decisions`, update `lastUpdated`, append to `subTopics`
+5. **When creating new**:
+   - Create `agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
+   - Add entry to `index.yaml` (newest first) with: date, time, topic, file, type, decisions (initially 1), lastUpdated, subTopics (initially one title)
+6. **Fill it in using the template** — capture the *why* and *how*, not transcripts
+7. **Tell the user** — where it was saved, what was captured, what was sanitized
+
+**index.yaml structure**:
+```yaml
+sessions:
+  - date: "YYYY-MM-DD"
+    time: "HH:MM"
+    topic: "Session topic"
+    file: "YYYY-MM-DD/HH-MM-topic.md"
+    type: "coding / design / discussion / etc"
+    decisions: 3
+    lastUpdated: "YYYY-MM-DD HH:MM"
+    subTopics:
+      - "Decision 1 title"
+      - "Decision 2 title"
+```
+
+- `subTopics`: List of all `###` headings from `## Discussion points and decisions` (auto-extracted)
+- `lastUpdated`: Timestamp of last modification (used to decide append vs create new)
+- `decisions`: Count of decision points in the file
 
 ### Language
 

@@ -8,4 +8,5 @@ sessions:
     topic: "agent-memory 自举验证环境搭建"
     file: "2026-07-11/17-35-agent-memory-self-hosting-setup.md"
     type: "design + 开发"
-    decisions: 12
+    decisions: 13
+    lastUpdated: "2026-07-11 18:45"

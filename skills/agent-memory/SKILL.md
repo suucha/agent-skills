@@ -109,16 +109,83 @@ Copy these files from the skill's `references/` directory:
 
 Append the tracking block to **both** files (see the canonical block in `## Canonical tracking block` below). Check first to avoid duplicates.
 
+### Step 1.5: Session File Structure (strict format)
+
+**Every session file MUST follow this standardized structure.** This enables reliable parsing by any agent.
+
+```markdown
+# [Main Topic]
+
+- **Date**: YYYY-MM-DD HH:MM
+- **Participants**: [user] + [AI tool name]
+- **Type**: [coding / design / discussion / research / other]
+
+## Background
+[One paragraph describing why this session happened and what the goal is]
+
+## Discussion points and decisions
+
+### 1. [Decision title]
+**Problem**: [One paragraph describing what needs to be solved]
+**Options**: [Optional: list of options considered]
+**Decision**: [One sentence stating the final choice]
+**Rationale**: [Bullet points or paragraph explaining why]
+
+---
+
+### 2. [Next decision title]
+**Problem**: ...
+**Decision**: ...
+**Rationale**: ...
+
+(Continue for all decisions...)
+
+## Execution plan
+[Optional: key implementation steps]
+
+## Related content
+[Optional: code changes, references]
+
+## Lessons learned
+[Optional: reusable patterns, pitfalls to avoid]
+
+## Follow-ups / TODOs
+[Optional: pending tasks]
+```
+
+**Critical parsing rules for agents:**
+- Each `###` heading within `## Discussion points and decisions` represents one decision point
+- Each decision MUST have `**Problem:**`, `**Decision:**`, and `**Rationale:**` fields (Options is optional)
+- Section order is fixed: Background → Discussion → Execution → Related → Lessons → Follow-ups
+- Agents extract decisions by:
+  1. Reading `index.yaml` → get `subTopics` array (quick overview)
+  2. Opening file → locate `## Discussion points and decisions`
+  3. Extract all `### [title]` subsections
+  4. For each subsection, extract Problem/Decision/Rationale fields
+  5. Skip low-priority sections (Execution plan, Related content, Follow-ups) during recall
+
 ### Step 2: Auto-recall — at the start of a session (Mode 2, ongoing)
 
 **When the conversation begins, or when the user references prior work / a prior decision, ALWAYS do this before responding substantively:**
 
-1. Read `agent-memory/template.md` to understand the format (so you can parse stored files)
-2. Scan `agent-memory/` for recent session files (newest first, last ~5 files)
-3. Extract the **decisions and rationale** from each (the `## Discussion points and decisions` and `## Lessons learned` sections are the highest-value parts)
-4. Carry that context into the current conversation — do not re-litigate settled decisions, do not propose approaches already rejected
+#### 2.1 Extraction process
 
-**This is what makes it memory.** The point is: when the user opens a new session or switches machines, the agent already knows what was decided last time. If you skip recall, the system degrades back into a diary.
+1. Read `agent-memory/index.yaml` → get the ~5 most recent sessions
+2. For each session:
+   - Read `subTopics` from index.yaml (quick overview of what was discussed)
+   - Open the file and locate the `## Discussion points and decisions` section
+   - Extract all `### [title]` subsections within that section
+   - For each subsection, extract:
+     - **Problem**: what needed to be solved
+     - **Decision**: the final choice
+     - **Rationale**: why it was chosen
+   - **Skip these sections** (lower recall priority): `## Execution plan`, `## Related content`, `## Follow-ups / TODOs`
+   - Also extract key points from `## Lessons learned` if present
+3. Carry that context into the current conversation — do not re-litigate settled decisions, do not propose approaches already rejected
+
+#### 2.2 Why this matters
+
+**This is what makes it memory.** When the user opens a new session or switches machines, the agent already knows what was decided last time. If you skip recall, the system degrades back into a diary.
 
 **Surface it briefly**: "I've reviewed the last N sessions — I see we decided X (on YYYY-MM-DD) because Y. Building on that…" This confirms recall worked and catches gaps.
 
@@ -170,13 +237,32 @@ Capture the **why and how decisions were made** — not word-for-word transcript
 
 #### 3.3 Save flow (when triggered)
 
+**Decide whether to append or create a new file:**
+
+- **Append to existing file** if:
+  - A session file exists for today (`agent-memory/YYYY-MM-DD/`)
+  - Its `lastUpdated` in `index.yaml` is within the last ~3 hours
+  - The topic is related (same project area)
+  
+- **Create new file** if:
+  - No session file exists for today
+  - Last update was >3 hours ago (likely a different conversation)
+  - Topic has significantly changed (different feature/component)
+
+**When appending:**
+1. Add a new `### N. [Decision title]` section to the existing file's `## Discussion points and decisions` section
+2. Update `index.yaml`: 
+   - Increment `decisions` count
+   - Update `lastUpdated` timestamp
+   - Append new decision title to `subTopics` array
+
+**When creating new file:**
 1. Read `agent-memory/template.md` for the format
 2. **Sanitize** sensitive information (see §3.4)
-3. Decide: append a decision section to the current day's session file, or create a new one — prefer appending to the existing day file if a session is already in progress
-4. Write in the **user's conversational language** (whole file — see `references/template.md` language note)
-5. **Tell the user** — briefly: "Saved a decision to `agent-memory/YYYY-MM-DD/HH-MM-topic.md` — [what was captured]. [What was sanitized, if anything]."
-
-The tell-the-user step matters: it makes auto-save visible (so the user can correct course if it saved something trivial) and builds trust in the system.
+3. Create `agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
+4. Write in the **user's conversational language** (see Language section)
+5. Add new entry to `index.yaml` (newest first) with: date, time, topic, file, type, decisions (initially 1), lastUpdated, subTopics (initially one title)
+6. **Tell the user** — briefly: "Saved a decision to `agent-memory/YYYY-MM-DD/HH-MM-topic.md` — [what was captured]. [What was sanitized, if anything]."
 
 #### 3.4 Sanitize sensitive information
 
@@ -264,10 +350,38 @@ If you find yourself about to describe a decision you just made or helped make, 
 
 1. **Read the template** — read `agent-memory/template.md` first to understand the format
 2. **Sanitize content** — remove sensitive information (passwords, keys, PII, etc.)
-3. **Create/append the file** — `agent-memory/YYYY-MM-DD/HH-MM-topic.md` (prefer appending a decision section to today's file if one is in progress)
-4. **Fill it in using the template** — capture the *why* and *how*, not transcripts
-5. **Update the index** — append an entry to `agent-memory/index.yaml` (newest first) with date, time, topic, file path, type, and decision count
-6. **Tell the user** — where it was saved, what was captured, what was sanitized
+3. **Decide: append or create new**:
+   - Append if: session file exists for today AND `lastUpdated` in index.yaml is within ~3 hours AND topic is related
+   - Create new if: no session file for today OR last update >3 hours ago OR topic changed significantly
+4. **When appending**:
+   - Add new `### N. [Decision title]` section to `## Discussion points and decisions`
+   - Update `index.yaml`: increment `decisions`, update `lastUpdated`, append to `subTopics`
+5. **When creating new**:
+   - Create `agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
+   - Add entry to `index.yaml` (newest first) with: date, time, topic, file, type, decisions (initially 1), lastUpdated, subTopics (initially one title)
+6. **Fill it in using the template** — capture the *why* and *how*, not transcripts
+7. **Tell the user** — where it was saved, what was captured, what was sanitized
+
+### index.yaml structure
+
+```yaml
+sessions:
+  - date: "YYYY-MM-DD"
+    time: "HH:MM"
+    topic: "Session topic"
+    file: "YYYY-MM-DD/HH-MM-topic.md"
+    type: "coding / design / discussion / etc"
+    decisions: 3
+    lastUpdated: "YYYY-MM-DD HH:MM"
+    subTopics:
+      - "Decision 1 title"
+      - "Decision 2 title"
+      - "Decision 3 title"
+```
+
+- **subTopics**: List of all `###` headings from `## Discussion points and decisions` section (auto-extracted when saving)
+- **lastUpdated**: Timestamp of last modification (used to decide append vs create new)
+- **decisions**: Count of decision points in the file
 
 ### Language
 
