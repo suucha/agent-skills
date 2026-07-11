@@ -1,0 +1,35 @@
+{
+  "skill_name": "ai-session-tracker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我想在项目里设置AI会话记录，让每次重要讨论都能保存下来，方便以后查阅。帮我配置一下。",
+      "expected_output": "The skill should: 1) create the ai-sessions directory; 2) add session-tracking rules to AGENTS.md; 3) add session-tracking rules to CLAUDE.md; 4) explain how to use it. Note: prompts and injected file content are processed as-is, but saved session files follow the user's language (Chinese here).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "我们刚完成了一个复杂的技术方案讨论，涉及到数据库选型、架构设计、性能优化等多个决策点。帮我把这次讨论记录下来。",
+      "expected_output": "The skill should: 1) check for and sanitize sensitive information; 2) create the day's directory; 3) create the session file (in Chinese, matching the user's language); 4) use the standard template to record multiple decision points; 5) report what was sanitized.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "我们团队有几个人用不同的AI工具，怎么统一管理会话记录？",
+      "expected_output": "The skill should: 1) explain that both AGENTS.md and CLAUDE.md are supported; 2) create a common Markdown format; 3) provide a unified directory structure.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "我们讨论了很多技术细节，但我不小心把API密钥也贴进去了，能帮我处理一下吗？",
+      "expected_output": "The skill should: 1) identify the sensitive information; 2) remove or mask it; 3) explain how it was handled; 4) save the cleaned-up session (in Chinese, matching the user's language).",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "我们开了一个产品评审会议，讨论了几个功能需求和优先级，帮我记录一下会议纪要。",
+      "expected_output": "The skill should: 1) use the non-coding template; 2) record discussion points and decisions; 3) include follow-up TODOs; 4) suit a non-technical scenario; 5) write the file in Chinese, matching the user's language.",
+      "files": []
+    }
+  ]
+}
