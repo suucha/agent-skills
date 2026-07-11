@@ -148,3 +148,87 @@
 - [ ] 发现漏记时，记录到 agent-memory/IMPROVEMENTS.md
 - [ ] 根据 IMPROVEMENTS.md 的 gap 记录改进 SKILL.md
 - [ ] 验证跨机器的记忆延续是否工作
+
+---
+
+### 7. 初始化触发词改为记忆相关术语
+
+**问题**: 原触发词 "set up session tracking" 偏向会话跟踪/日志记录，不够体现"记忆"概念
+
+**选项**:
+- 保持 "session tracking": 向后兼容，但概念不准确
+- 改为 "memory" 相关: "set up memory"、"initialize memory"、"enable memory"
+
+**决策**: 使用 "set up memory" / "initialize memory" / "enable memory" 以及对应的中文版本
+
+**理由**:
+- 技能核心是"记忆"（auto-recall），不只是记录会话
+- 更直观、更自然的用户表达方式
+- 降低认知负担（技能名 = 触发词概念）
+- 支持中英文："设置记忆"、"初始化记忆"、"启用记忆"
+
+---
+
+### 8. 语言规则明确跨国团队场景
+
+**问题**: 原语言规则已支持用户指定语言，但没有明确说明典型场景（跨国团队）
+
+**决策**: 重构语言规则章节，分为"默认行为"和"用户指定"两部分，明确举例跨国团队用例
+
+**理由**:
+- 技能本身保持英文通用性
+- 会话记录根据用户语言或明确指定
+- 常见场景：中文对话但记录用英文（便于国际团队协作）
+- 结构化展示更清晰
+
+---
+
+### 9. README.md 模板化（修正设计缺陷）
+
+**问题**: 
+- `references/` 目录有 `template.md` 和 `IMPROVEMENTS.md`，但缺少 `README.md`
+- 初始化时 `agent-memory/README.md` 是即兴生成的中文内容，不是从模板复制
+- 三个文件来源不一致
+
+**决策**: 创建 `references/README.md` 英文模板，初始化时统一从 `references/` 复制三个文件
+
+**理由**:
+- 保持一致性：三个初始化文件都应该来自模板目录
+- 确保语言：默认英文（通用性），不依赖即兴生成
+- 便于维护：修改模板一处，所有新初始化的项目都受益
+- 文档质量：模板经过打磨，优于即兴内容
+
+## 执行计划（续）
+
+8. ✅ 更新触发词：SKILL.md、README.md（从 "session tracking" 改为 "memory" 系列）
+9. ✅ 优化语言规则：SKILL.md、AGENTS.md、CLAUDE.md、README.md（明确跨国团队场景）
+10. ✅ 创建 references/README.md 模板
+11. ✅ 更新 SKILL.md 初始化步骤（明确三个文件都从 references 复制）
+
+## 相关内容（续）
+
+### 新增 Git 提交
+- `refactor: update initialization trigger words to memory-focused terms`
+- `docs: clarify language handling with cross-border team examples`
+- `docs: translate agent-memory/README.md to English for universality`
+- `feat: add README.md template for agent-memory initialization`
+
+## 经验总结（续）
+
+- **触发词的语义匹配很重要**: 技能名和触发词应该在概念上一致，降低用户的认知负担
+- **文档结构化展示**: 将复杂规则分为"默认行为"和"特殊情况"，更易理解
+- **模板文件要完整**: 所有初始化时需要的文件都应该在 references/ 中准备好，避免即兴生成导致的不一致
+
+- **决策记录的粒度权衡**: 
+  - 同一主题的多个小决策可以追加到同一会话文件
+  - "讨论式"决策比"指令式"决策更难被自动触发
+  - 自举验证时应该更积极地记录，以测试系统边界
+
+## 后续待办（更新）
+
+- [ ] 重启 Kiro，验证技能是否正确加载
+- [ ] 测试新的触发词是否工作（"set up memory" / "设置记忆"）
+- [ ] 开始使用技能进行日常开发，观察 auto-save 和 auto-recall 是否正常工作
+- [ ] 发现漏记时，记录到 agent-memory/IMPROVEMENTS.md（特别关注"讨论式"决策的触发问题）
+- [ ] 根据 IMPROVEMENTS.md 的 gap 记录改进 SKILL.md
+- [ ] 验证跨机器的记忆延续是否工作
