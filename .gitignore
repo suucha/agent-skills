@@ -22,6 +22,7 @@ package-lock.json
 # Kiro agent config and runtime
 .agents/
 .kiro/
+.claude/
 
 # Agent memory sessions (runtime data, generated during dogfooding)
 /agent-memory/
