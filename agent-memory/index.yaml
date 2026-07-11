@@ -2,4 +2,10 @@
 # Auto-maintained by agent-memory skill
 # Newest sessions first
 
-sessions: []
+sessions:
+  - date: "2026-07-11"
+    time: "17:35"
+    topic: "agent-memory 自举验证环境搭建"
+    file: "2026-07-11/17-35-agent-memory-self-hosting-setup.md"
+    type: "design + 开发"
+    decisions: 6
