@@ -226,7 +226,19 @@ If you find yourself about to describe a decision you just made or helped make, 
 
 ### Language
 
-Write each saved session in the **same language the user is conversing in** — unless the user explicitly asks for a specific language (e.g. "save this in English", "用英文记录"). In that case, honor their choice. Otherwise: if the user writes in Chinese, the whole session file (section headers and content) is in Chinese; if in English, English; and so on for any other language. Do not translate the user's words into another language — the record should read naturally for the team that will use it.
+Write each saved session in the **same language the user is conversing in** — unless the user explicitly asks for a specific language.
+
+**Default behavior**: Match the user's language
+- If the user writes in Chinese, the whole session file (section headers and content) is in Chinese
+- If in English, English; and so on for any other language
+- Do not translate the user's words into another language
+
+**When user specifies a different language**:
+- User: "save this in English" / "用英文记录" → save in English regardless of conversation language
+- Common in cross-border teams: conversation in Chinese, but records in English for team sharing
+- Honor the user's choice exactly as specified
+
+The record should read naturally for the team that will use it.
 
 ### Notes
 

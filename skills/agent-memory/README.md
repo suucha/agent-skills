@@ -92,7 +92,14 @@ Before saving, the AI scans for and sanitizes:
 
 ## Language
 
-Each saved session is written in the **same language the user is conversing in** — Chinese conversation → Chinese session file, English → English, and so on — unless the user explicitly asks for a specific language, in which case their choice is honored. The record is never translated into another language on its own.
+Each saved session is written in the **same language the user is conversing in** — unless the user explicitly specifies otherwise.
+
+**Examples:**
+- Chinese conversation → Chinese session file
+- English conversation → English session file
+- Chinese conversation + "save this in English" → English session file (for cross-border teams)
+
+The record is never automatically translated. User's explicit language choice always takes precedence.
 
 ## Integrations
 
