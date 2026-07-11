@@ -260,3 +260,59 @@
 - 这是 SKILL.md 中明确规定的：decision + task → save FIRST, then execute
 - 这个漏记现在正在补救中（本条记录）
 - Gap 已记录到 IMPROVEMENTS.md
+
+---
+
+### 11. 新增"记忆帮助"触发词 + 帮助文本（强调肯定语气）
+
+**问题**:
+- 用户如何知道技能做什么、怎么触发？
+- 更重要的：模糊语气（"选A吧"/"可能用A"）是漏存的主因之一，如何引导用户用肯定语气？
+
+**选项**:
+- 方案 A：init 完成时自动弹帮助 — 每次开 session 都重复，容易惹烦，与"无需用户主动"理念冲突
+- 方案 B：被动触发（用户说"记忆帮助"时显示）+ init 不弹 — 安静，需要时才有
+- 方案 C：不做 — 用户既然主动初始化，基本知道
+
+**决策**: 选择方案 B — 被动触发，init 不弹；帮助文本里重点强调"用肯定语气"这条 tip
+
+**理由**:
+- "肯定语气" tip 是最有价值的部分——直接降低 IMPROVEMENTS.md gap 数量（模糊语气是漏存主因之一）
+- "做什么/怎么触发"价值次要，用户主动初始化基本知道
+- init 弹窗与技能"无需用户主动触发"的设计理念冲突，每次开 session 重复会惹烦
+- 被动触发 = 安静 + 需要时就有，符合技能风格
+- 不修改 trigger signals 表（保持严格，避免对探索性讨论过度触发）；改为通过帮助文本教育用户
+
+**执行计划**:
+1. SKILL.md 的 description 加 help 触发词（"memory help"/"记忆帮助"/"how does memory work" 等）
+2. SKILL.md 新增 "## On-demand help" 章节，含帮助文本
+3. 帮助文本重点突出"肯定语气"对比（强信号 vs 弱信号示例）
+4. 同步到 .kiro/、.agents/、.claude/ 三个目录
+
+---
+
+### 12. 修复 CLAUDE.md / AGENTS.md 同步命令的嵌套目录 bug
+
+**问题**: 文档化的同步命令 `Copy-Item -Recurse -Force "skills\agent-memory" ".kiro\skills\agent-memory"`(以及 bash 下对应的 `cp -r`)在目标目录已存在时，会把源目录**复制进**目标目录（形成 `.kiro/skills/agent-memory/agent-memory/` 嵌套），而不是替换目标。本次同步已经踩过这个坑——三个目标目录都被嵌套了，靠 `rm -rf` 再 `cp` 才修复。
+
+**根因**: `Copy-Item -Recurse` 和 `cp -r` 都遵循 POSIX 语义：dest 存在时，把 source 作为 source-name 子目录放进 dest。这不是 bug 是设计，但对文档化"同步"工作流来说是隐式陷阱——首次执行后 dest 永远存在，所有后续同步都中招。
+
+**选项**:
+- 方案 A：保持现状（`Copy-Item -Recurse -Force`），加文档警告 — 警告容易被忽略，bug 还在
+- 方案 B：改为 delete-then-copy 模式（`Remove-Item -Recurse -Force` + `Copy-Item -Recurse`）— 显式、可靠、跨平台
+- 方案 C：用 `robocopy /MIR` — Windows 原生、快，但跨平台不友好
+- 方案 D：写同步脚本（PowerShell 或 git hook）— 治本但增加维护负担
+
+**决策**: 方案 B — 改为 delete-then-copy；同时修正代码块的语言标签（原写 `bash` 但内容是 PowerShell，误导）；提供 PowerShell 和 bash 两版命令（agent 运行环境可能不同）。
+
+**理由**:
+- 显式清理是最可靠的跨平台方式，无需依赖工具特定语义
+- 比 robocopy 更可移植（robocopy Windows 限定）
+- 比脚本化更简单（修改门槛低，agent 一次就能执行对）
+- 双语版（PowerShell + bash）覆盖两种 agent shell 场景
+
+**执行**:
+1. CLAUDE.md 第 5-48 行的同步章节整体替换为 delete-then-copy 版本
+2. AGENTS.md 第 5-48 行同样替换
+3. 代码块语言标签从 `bash` 改为 `powershell`（PowerShell 命令）和 `bash`（bash 命令）
+4. 解释为什么需要 delete-then-copy（一句话，避免后人误改）

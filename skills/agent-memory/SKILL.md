@@ -1,6 +1,6 @@
 ---
 name: agent-memory
-description: Set up an AI memory system that automatically captures important decisions during conversations and recalls them across agents and machines. Unlike a passive archive, this skill AUTO-SAVES when decision signals are detected (no need for the user to ask) and AUTO-RECALLS prior decisions at the start of each session. You MUST use this skill whenever the user mentions set up memory, initialize memory, enable memory, conversation memory, saving a conversation, session notes, AI notes, knowledge retention, team collaboration, or wants the AI to remember previous discussions — e.g. "set up memory", "initialize memory", "enable memory", "save this conversation", "record this", "session notes", "remember what we decided", "设置记忆", "初始化记忆", "启用记忆", or "记一下". Also applies when initializing a new project and establishing memory conventions.
+description: Set up an AI memory system that automatically captures important decisions during conversations and recalls them across agents and machines. Unlike a passive archive, this skill AUTO-SAVES when decision signals are detected (no need for the user to ask) and AUTO-RECALLS prior decisions at the start of each session. You MUST use this skill whenever the user mentions set up memory, initialize memory, enable memory, conversation memory, saving a conversation, session notes, AI notes, knowledge retention, team collaboration, or wants the AI to remember previous discussions — e.g. "set up memory", "initialize memory", "enable memory", "save this conversation", "record this", "session notes", "remember what we decided", "设置记忆", "初始化记忆", "启用记忆", or "记一下". Also applies when initializing a new project and establishing memory conventions. ALSO use this skill when the user asks what the skill does or how to use it — e.g. "memory help", "记忆帮助", "how does memory work", "怎么用记忆", "what did you save", "what triggers a save" — display the on-demand help text described in the "On-demand help" section.
 keywords: memory, session, tracking, decisions, recall, knowledge, conversation, notes, remember, 记录, 记忆
 ---
 
@@ -19,7 +19,7 @@ Saving alone = a diary no one reads. Recalling alone = nothing to recall. The va
 
 ---
 
-## Two usage modes
+## Usage modes
 
 ### Mode 1: Initialize the memory system
 
@@ -34,6 +34,50 @@ Updating both matters because each tool reads only its own config file — if yo
 ### Mode 2: Auto-save & auto-recall (ongoing, during every session)
 
 This is the default behavior once initialized — it runs continuously, not on demand.
+
+### Mode 3: On-demand help (when the user asks)
+
+When the user asks what the skill does, how it works, or how to trigger a save — e.g. "memory help", "记忆帮助", "how does memory work", "怎么用记忆", "what does this skill do", "what triggers a save", "怎么才能被记下来" — display the help text in the **"On-demand help text"** section below verbatim (or paraphrased to match the user's language). Do not also run init or save anything; just show the help.
+
+The single highest-value tip in the help is the **affirmative-language** guidance — call it out, because weak language ("选A吧" / "maybe A") is the leading cause of missed saves, and the user can fix it directly by changing how they phrase decisions.
+
+---
+
+## On-demand help text
+
+Show this when Mode 3 is triggered. Adapt the language to match the user's (Chinese ↔ English); keep the structure.
+
+---
+
+**What this skill does**: Captures decisions during our conversations and recalls them next session, so any agent picking up this project knows what was already decided and why — you don't re-litigate settled questions.
+
+**You don't need to do anything special.** Auto-save and auto-recall run on their own. But one habit dramatically improves how well it works:
+
+### Use affirmative language when you've decided ⚠️
+
+This skill detects decisions from your language. **Ambiguous phrasing gets missed; strong signals get saved.**
+
+✅ **Strong signals** (reliably saved):
+- 中文：「就选 A」「用 A 方案」「确定了」「就这样定」「就这么干」
+- English: "let's go with X", "that's the one", "finalize X", "decision made"
+
+❌ **Weak signals** (often missed):
+- 中文：「选 A 吧」「可能用 A」「先试试 A?」「感觉 A 好一点」「先用 A 看看」
+- English: "maybe A", "I guess A", "let's try A?", "I think A"
+
+**If you've made up your mind, say so plainly.** If you're still exploring, that's fine — just don't expect a save until you commit.
+
+### Other things worth knowing
+
+- **Decisions to NOT do something count too.** "不做 X，因为 Y" / "we're not doing X because Y" is a first-class decision — recording it prevents the same question coming back next session.
+- **Manual triggers**:
+  - "记一下" / "save this" / "record this" — force a save right now
+  - "漏了" / "这条刚才没记下来" / "you didn't save that" — flag a missed save (the system self-improves via `IMPROVEMENTS.md`)
+  - "记忆帮助" / "memory help" — show this help again
+- **Where things live**:
+  - `agent-memory/index.yaml` — session index (newest first)
+  - `agent-memory/YYYY-MM-DD/HH-MM-topic.md` — individual session files
+  - `agent-memory/IMPROVEMENTS.md` — backlog of missed saves (the system's own bug tracker)
 
 ---
 

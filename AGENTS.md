@@ -8,23 +8,30 @@ When developing the `agent-memory` skill, files in `skills/agent-memory/` serve 
 
 ### After modifying any file in `skills/agent-memory/`:
 
-**ALWAYS synchronize changes to all skill directories:**
+**ALWAYS synchronize changes to all skill directories.** Use **delete-then-copy** — `Copy-Item -Recurse -Force` and `cp -r` both silently copy *into* an existing destination instead of replacing it, creating a nested `agent-memory/agent-memory/`. After the first sync the destination always exists, so every subsequent sync hits this trap unless you remove first.
 
-```bash
-# Copy to Kiro
-Copy-Item -Recurse -Force "skills\agent-memory" ".kiro\skills\agent-memory"
+**PowerShell** (run in PowerShell window, or `powershell.exe -Command` from another shell):
 
-# Copy to opencode (Agents)
-Copy-Item -Recurse -Force "skills\agent-memory" ".agents\skills\agent-memory"
-
-# Copy to Claude Code
-Copy-Item -Recurse -Force "skills\agent-memory" ".claude\skills\agent-memory"
+```powershell
+Remove-Item -Recurse -Force ".kiro\skills\agent-memory", ".agents\skills\agent-memory", ".claude\skills\agent-memory"
+Copy-Item -Recurse "skills\agent-memory" ".kiro\skills\agent-memory"
+Copy-Item -Recurse "skills\agent-memory" ".agents\skills\agent-memory"
+Copy-Item -Recurse "skills\agent-memory" ".claude\skills\agent-memory"
 ```
 
-**Or use a single command to sync all:**
+**Or as a one-liner:**
+
+```powershell
+Remove-Item -Recurse -Force ".kiro\skills\agent-memory", ".agents\skills\agent-memory", ".claude\skills\agent-memory"; Copy-Item -Recurse "skills\agent-memory" ".kiro\skills\agent-memory"; Copy-Item -Recurse "skills\agent-memory" ".agents\skills\agent-memory"; Copy-Item -Recurse "skills\agent-memory" ".claude\skills\agent-memory"
+```
+
+**Bash** (Git Bash, WSL, or Claude Code's shell on Windows):
 
 ```bash
-Copy-Item -Recurse -Force "skills\agent-memory" ".kiro\skills\agent-memory"; Copy-Item -Recurse -Force "skills\agent-memory" ".agents\skills\agent-memory"; Copy-Item -Recurse -Force "skills\agent-memory" ".claude\skills\agent-memory"
+rm -rf .kiro/skills/agent-memory .agents/skills/agent-memory .claude/skills/agent-memory && \
+cp -r skills/agent-memory .kiro/skills/agent-memory && \
+cp -r skills/agent-memory .agents/skills/agent-memory && \
+cp -r skills/agent-memory .claude/skills/agent-memory
 ```
 
 ### Why this is necessary:
@@ -33,6 +40,7 @@ Copy-Item -Recurse -Force "skills\agent-memory" ".kiro\skills\agent-memory"; Cop
 - **Real file copies are required** for each tool to recognize the skill
 - **Three copies** ensure the skill works across all agent platforms
 - **Manual sync** is needed because file watchers don't trigger on source changes
+- **Delete-then-copy** is required (not plain `Copy-Item -Recurse` / `cp -r`) — see the note above about nested-directory trap
 
 ### When to sync:
 
