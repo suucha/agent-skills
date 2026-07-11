@@ -1,6 +1,7 @@
 ---
 name: agent-memory
 description: Set up an AI memory system that automatically captures important decisions during conversations and recalls them across agents and machines. Unlike a passive archive, this skill AUTO-SAVES when decision signals are detected (no need for the user to ask) and AUTO-RECALLS prior decisions at the start of each session. You MUST use this skill whenever the user mentions setting up session tracking, memory, conversation memory, saving a conversation, session notes, AI notes, knowledge retention, team collaboration, or wants the AI to remember previous discussions — e.g. "set up session tracking", "save this conversation", "record this", "session notes", "remember what we decided", or "记一下". Also applies when initializing a new project and establishing session-tracking conventions.
+keywords: memory, session, tracking, decisions, recall, knowledge, conversation, notes, remember, 记录, 记忆
 ---
 
 # Agent Memory
