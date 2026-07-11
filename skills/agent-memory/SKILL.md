@@ -45,7 +45,7 @@ This is the default behavior once initialized — it runs continuously, not on d
 At the project root, create:
 
 ```
-ai-sessions/
+agent-memory/
 ├── README.md                    # usage instructions
 ├── IMPROVEMENTS.md              # rule-gap log (self-maintaining backlog of missed saves)
 ├── template.md                  # session template (copied from this skill)
@@ -57,7 +57,7 @@ ai-sessions/
 
 Also create `IMPROVEMENTS.md` with an Open / Resolved section and an entry template at the bottom (see `references/IMPROVEMENTS.md` for the seed format).
 
-Copy `references/template.md` from this skill into `ai-sessions/template.md`.
+Copy `references/template.md` from this skill into `agent-memory/template.md`.
 
 #### 1.2 Update AGENTS.md and CLAUDE.md
 
@@ -67,8 +67,8 @@ Append the tracking block to **both** files (see the canonical block in `## Cano
 
 **When the conversation begins, or when the user references prior work / a prior decision, ALWAYS do this before responding substantively:**
 
-1. Read `ai-sessions/template.md` to understand the format (so you can parse stored files)
-2. Scan `ai-sessions/` for recent session files (newest first, last ~5 files)
+1. Read `agent-memory/template.md` to understand the format (so you can parse stored files)
+2. Scan `agent-memory/` for recent session files (newest first, last ~5 files)
 3. Extract the **decisions and rationale** from each (the `## Discussion points and decisions` and `## Lessons learned` sections are the highest-value parts)
 4. Carry that context into the current conversation — do not re-litigate settled decisions, do not propose approaches already rejected
 
@@ -124,11 +124,11 @@ Capture the **why and how decisions were made** — not word-for-word transcript
 
 #### 3.3 Save flow (when triggered)
 
-1. Read `ai-sessions/template.md` for the format
+1. Read `agent-memory/template.md` for the format
 2. **Sanitize** sensitive information (see §3.4)
 3. Decide: append a decision section to the current day's session file, or create a new one — prefer appending to the existing day file if a session is already in progress
 4. Write in the **user's conversational language** (whole file — see `references/template.md` language note)
-5. **Tell the user** — briefly: "Saved a decision to `ai-sessions/YYYY-MM-DD/HH-MM-topic.md` — [what was captured]. [What was sanitized, if anything]."
+5. **Tell the user** — briefly: "Saved a decision to `agent-memory/YYYY-MM-DD/HH-MM-topic.md` — [what was captured]. [What was sanitized, if anything]."
 
 The tell-the-user step matters: it makes auto-save visible (so the user can correct course if it saved something trivial) and builds trust in the system.
 
@@ -159,7 +159,7 @@ This is the block to inject into both `AGENTS.md` and `CLAUDE.md` during initial
 ### Directory Structure
 
 ```
-ai-sessions/
+agent-memory/
 ├── index.yaml            # session index (auto-maintained, newest first)
 ├── IMPROVEMENTS.md       # rule-gap log (self-maintaining backlog of missed saves)
 ├── template.md           # session file template
@@ -176,7 +176,7 @@ the system has no way to know — unless the user points it out.
 **When the user says "这条刚才没记下来" / "you didn't save that" / "that should have been saved" / "漏了":**
 
 1. **Save the decision** that was missed (append to today's session file + update index.yaml) — this is recovery.
-2. **Append a gap entry to `ai-sessions/IMPROVEMENTS.md`** — this is prevention. Use the entry template at the bottom of that file. Record: date, symptom (what was discussed but not saved), root cause (which signal was missing/ambiguous), status (open).
+2. **Append a gap entry to `agent-memory/IMPROVEMENTS.md`** — this is prevention. Use the entry template at the bottom of that file. Record: date, symptom (what was discussed but not saved), root cause (which signal was missing/ambiguous), status (open).
 
 This makes the system its own bug tracker: gaps accumulate in a file (not in
 someone's memory), and any future session that wants to improve the rules reads
@@ -186,7 +186,7 @@ carries it forward.**
 
 ### Auto-recall (at the start of every session)
 
-Before responding substantively, read `ai-sessions/index.yaml` for the recent session list (newest first, up to ~5), then read each referenced file to extract decisions and rationale, and carry that context forward. Surface it briefly: "I've reviewed the last N sessions — we decided X because Y…" This ensures you never re-litigate settled decisions or propose approaches already rejected. **This is what makes the system "memory" rather than an archive.**
+Before responding substantively, read `agent-memory/index.yaml` for the recent session list (newest first, up to ~5), then read each referenced file to extract decisions and rationale, and carry that context forward. Surface it briefly: "I've reviewed the last N sessions — we decided X because Y…" This ensures you never re-litigate settled decisions or propose approaches already rejected. **This is what makes the system "memory" rather than an archive.**
 
 ### Auto-save (when decision signals are detected)
 
@@ -216,11 +216,11 @@ If you find yourself about to describe a decision you just made or helped make, 
 
 ### Saving process
 
-1. **Read the template** — read `ai-sessions/template.md` first to understand the format
+1. **Read the template** — read `agent-memory/template.md` first to understand the format
 2. **Sanitize content** — remove sensitive information (passwords, keys, PII, etc.)
-3. **Create/append the file** — `ai-sessions/YYYY-MM-DD/HH-MM-topic.md` (prefer appending a decision section to today's file if one is in progress)
+3. **Create/append the file** — `agent-memory/YYYY-MM-DD/HH-MM-topic.md` (prefer appending a decision section to today's file if one is in progress)
 4. **Fill it in using the template** — capture the *why* and *how*, not transcripts
-5. **Update the index** — append an entry to `ai-sessions/index.yaml` (newest first) with date, time, topic, file path, type, and decision count
+5. **Update the index** — append an entry to `agent-memory/index.yaml` (newest first) with date, time, topic, file path, type, and decision count
 6. **Tell the user** — where it was saved, what was captured, what was sanitized
 
 ### Language
@@ -265,4 +265,4 @@ Write each saved session in the **same language the user is conversing in** — 
 - **Why auto-recall is non-negotiable**: a memory that isn't read is just a diary. The recall step is what makes this valuable across agents and machines — the core use case ("switch machines, new agent picks up where the last left off") only works if recall runs.
 - **Why both `AGENTS.md` and `CLAUDE.md`**: each tool reads only its own config file. If you update one, users of the other tool never see the rules.
 - **Why `index.yaml`**: scanning a directory of markdown files every session start is wasteful and slow. A single index file lets auto-recall read one file to find the recent sessions, then pull only those. The index is auto-maintained — every save appends an entry.
-- **Cross-agent memory**: the `ai-sessions/` directory (plain markdown + yaml, committed to git) is the **provider-neutral memory layer**. Each agent vendor locks memory inside its own format (Claude's, Cursor's, etc.); this directory is the escape hatch. The auto-recall step is what bridges vendor-specific sessions into this shared layer.
+- **Cross-agent memory**: the `agent-memory/` directory (plain markdown + yaml, committed to git) is the **provider-neutral memory layer**. Each agent vendor locks memory inside its own format (Claude's, Cursor's, etc.); this directory is the escape hatch. The auto-recall step is what bridges vendor-specific sessions into this shared layer.
