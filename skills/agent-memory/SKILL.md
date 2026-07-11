@@ -1,6 +1,6 @@
 ---
 name: agent-memory
-description: Set up an AI memory system that automatically captures important decisions during conversations and recalls them across agents and machines. Unlike a passive archive, this skill AUTO-SAVES when decision signals are detected (no need for the user to ask) and AUTO-RECALLS prior decisions at the start of each session. You MUST use this skill whenever the user mentions setting up session tracking, memory, conversation memory, saving a conversation, session notes, AI notes, knowledge retention, team collaboration, or wants the AI to remember previous discussions — e.g. "set up session tracking", "save this conversation", "record this", "session notes", "remember what we decided", or "记一下". Also applies when initializing a new project and establishing session-tracking conventions.
+description: Set up an AI memory system that automatically captures important decisions during conversations and recalls them across agents and machines. Unlike a passive archive, this skill AUTO-SAVES when decision signals are detected (no need for the user to ask) and AUTO-RECALLS prior decisions at the start of each session. You MUST use this skill whenever the user mentions set up memory, initialize memory, enable memory, conversation memory, saving a conversation, session notes, AI notes, knowledge retention, team collaboration, or wants the AI to remember previous discussions — e.g. "set up memory", "initialize memory", "enable memory", "save this conversation", "record this", "session notes", "remember what we decided", "设置记忆", "初始化记忆", "启用记忆", or "记一下". Also applies when initializing a new project and establishing memory conventions.
 keywords: memory, session, tracking, decisions, recall, knowledge, conversation, notes, remember, 记录, 记忆
 ---
 
@@ -23,7 +23,7 @@ Saving alone = a diary no one reads. Recalling alone = nothing to recall. The va
 
 ### Mode 1: Initialize the memory system
 
-When the user says "set up session tracking", "configure memory", or something similar, run the initialization.
+When the user says "set up memory" / "设置记忆", "initialize memory" / "初始化记忆", "enable memory" / "启用记忆", or something similar, run the initialization.
 
 **Always create/update both files** (regardless of whether they already exist):
 1. **AGENTS.md** (read by opencode)

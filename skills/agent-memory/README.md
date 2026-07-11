@@ -33,7 +33,13 @@ npx skills add suucha/agent-skills --skill agent-memory -g -y
 Tell the AI:
 
 ```
-Set up session tracking
+Set up memory
+```
+
+Or:
+
+```
+设置记忆
 ```
 
 The AI will automatically:
