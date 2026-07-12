@@ -28,14 +28,6 @@ npx skills add suucha/agent-skills --skill agent-memory -g -y
 
 ---
 
-### 🚧 Coming Soon
-
-- **memory-sync** — Real-time memory sync across different agents and machines
-- **session-replay** — Replay and debug agent conversations
-- **decision-viz** — Visualize decision history and dependencies
-
----
-
 ## 🚀 Quick Start
 
 ### Installation
