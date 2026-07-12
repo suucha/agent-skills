@@ -150,6 +150,30 @@ If you find yourself about to describe a decision you just made or helped make, 
 6. **Fill it in using the template** — capture the *why* and *how*, not transcripts
 7. **Tell the user** — where it was saved, what was captured, what was sanitized
 
+### Checkpoints (in-progress discussion snapshots)
+
+Sometimes a discussion hasn't converged into a decision yet, but the context is rich enough to be worth saving. The user can trigger a checkpoint manually:
+
+- 中文："存个检查点" / "记录讨论进度"
+- English: "checkpoint this" / "save a snapshot"
+
+**Save flow:**
+
+1. **Decide append vs new file** — same rules as decision save (topic continuity primary, time gap secondary)
+2. Append a `### checkpoint. [Topic]` section to the session file with `Problem` / `Snapshot` / `Open questions` fields
+3. Update `index.yaml`: append `[checkpoint] [Topic]` to `subTopics` (with prefix), update `lastUpdated`, do **NOT** increment `decisions`
+4. Tell the user it was saved as a checkpoint
+
+**Upgrade to decision (in-place rewrite):**
+
+When the checkpoint later converges into a decision:
+
+1. Rewrite `### checkpoint. [Topic]` → `### N. [Topic]`
+2. Replace `Snapshot` / `Open questions` with `Options` / `Decision` / `Rationale`
+3. Update `index.yaml`: remove `[checkpoint]` prefix, increment `decisions`, update `lastUpdated`
+
+Git preserves the original checkpoint for traceability — no need to keep a duplicate record in the file.
+
 **index.yaml structure**:
 ```yaml
 sessions:
@@ -162,12 +186,13 @@ sessions:
     lastUpdated: "YYYY-MM-DD HH:MM"
     subTopics:
       - "Decision 1 title"
+      - "[checkpoint] In-progress topic title"   # prefix marks checkpoints
       - "Decision 2 title"
 ```
 
-- `subTopics`: List of all `###` headings from `## Discussion points and decisions` (auto-extracted)
+- `subTopics`: List of all `###` headings from `## Discussion points and decisions` (auto-extracted); entries prefixed with `[checkpoint]` are in-progress snapshots, not decisions
 - `lastUpdated`: Timestamp of last modification (used to decide append vs create new)
-- `decisions`: Count of decision points in the file
+- `decisions`: Count of decision points in the file (does NOT include checkpoints)
 
 ### Language
 

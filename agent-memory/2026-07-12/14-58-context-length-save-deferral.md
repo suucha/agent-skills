@@ -45,13 +45,65 @@
 - Agent 自检规则的阈值是软规则，LLM 容易 deprioritize（这正是当前决策触发规则要靠 self-check 强制执行的原因）
 - 真要做时还需设计：checkpoint 类型的存档如何与 decision 类型在 `index.yaml` 里区分，避免召回时把半成品结论当成定论
 
+---
+
+### 3. 加入手动触发的 checkpoint（本版本）
+
+**Problem**: 用户希望本版本就能存"进行中讨论快照"，不必等下个版本的 hook。
+
+**Options**:
+- 延后到下个版本和 hook 一起做
+- 本版本加手动触发（用户主动说"存个检查点"等），auto-trigger 仍走 hook
+
+**Decision**: 本版本加手动触发；auto-trigger 仍延后到下个版本。
+
+**Rationale**:
+- 手动触发实现成本低（主要是 SKILL.md 规则 + 索引约定）
+- 填补了"决策驱动存档"和"上下文丢失风险"之间的空白
+- 不阻塞下个版本 hook 的工作，两者互补
+
+---
+
+### 4. Checkpoint 的存储与索引 — Option A
+
+**Problem**: checkpoint 怎么存？怎么和 decision 在 index 里区分？
+
+**Options**:
+- Option A: 同一 session 文件 + tagged section（`### checkpoint. [topic]`），`index.yaml` 的 subTopics 用 `[checkpoint]` 前缀标记
+- Option B: 独立文件类型（如 `checkpoint.md`），index 单独一节
+
+**Decision**: Option A。
+
+**Rationale**:
+- 简单、和现有追加模式天然兼容
+- 大部分 checkpoint 本来就和 decision 混在同一段对话里，分开存反而割裂上下文
+- index 用前缀区分，召回时可以一眼看出哪些是定论、哪些是进行中
+
+---
+
+### 5. Checkpoint 升级为 decision 的语义 — 原地升级
+
+**Problem**: 当 checkpoint 后来收敛成 decision 时怎么处理？
+
+**Options**:
+- 原地升级：把 `### checkpoint. xxx` 改写成 `### N. xxx`，补全 Decision/Rationale
+- 保留 checkpoint + 新建 decision section 指向它
+
+**Decision**: 原地升级。
+
+**Rationale**:
+- git 已经保留了"曾经是 checkpoint"的演化历史，文件内不必双份记录
+- 文件保持简洁，避免越拉越长
+- `index.yaml` 同步把 `[checkpoint]` 前缀去掉
+
 ## Execution plan
 
-- **本版本**：不做任何改动，保持现状
-- **下个版本**：调研 PreCompact hook 接口；设计 checkpoint vs decision 的索引区分；评估是否引入单独的文件类型
+- **本版本**：加入用户手动触发的 checkpoint（trigger phrases + `### checkpoint.` section + `[checkpoint]` index 前缀 + 原地升级语义）；auto-trigger 仍不动
+- **下个版本**：用 PreCompact hook 把 checkpoint 触发自动化
 
 ## Follow-ups / TODOs
 
-- [ ] 下个版本：调研 PreCompact hook 的接口细节
-- [ ] 下个版本：设计 checkpoint 类型存档的索引结构（与 decision 区分）
-- [ ] 评估：是否需要单独的文件类型（如 `checkpoint.md`）承载此类存档
+- [x] 本版本：实现手动 checkpoint 触发（Option A：同文件 + tagged section）
+- [x] 本版本：定义原地升级语义
+- [ ] 下个版本：PreCompact hook 自动触发
+- [ ] 验证：真实使用中 checkpoint → decision 升级流程是否顺畅

@@ -2,7 +2,11 @@
 
 A standard session file template that supports recording multiple decision points.
 
-> **CRITICAL: This structure must be followed strictly.** Agents rely on this standardized format to extract decisions reliably. Each `###` heading within the "Discussion points and decisions" section represents one decision point and MUST include **Problem**, **Decision**, and **Rationale** fields. Do not deviate from this structure.
+> **CRITICAL: This structure must be followed strictly.** Agents rely on this standardized format to extract decisions reliably. Each `###` heading within the "Discussion points and decisions" section is one of two types:
+> - **`### N. [title]`** — a decision point. MUST include **Problem**, **Decision**, and **Rationale** fields (Options is optional).
+> - **`### checkpoint. [title]`** — an in-progress discussion snapshot (not yet a decision). MUST include **Problem**, **Snapshot**, and **Open questions** fields.
+>
+> Do not deviate from this structure.
 
 > **Language note:** Write the *content* in the language the user is conversing in (unless they explicitly ask for a specific language). **Field names (`Problem`, `Options`, `Decision`, `Rationale`) are always English** — they are structural markers, not content. Section titles (`### N. [title]`) and all body text translate with the session's language.
 
@@ -46,6 +50,20 @@ A standard session file template that supports recording multiple decision point
 
 (Add more decision points as needed...)
 
+### checkpoint. [In-progress topic / exploration]
+
+**Problem**: [what's being explored / discussed — not yet decided]
+
+**Snapshot**: [current state — options on the table, which way leaning, key tradeoffs identified]
+
+**Open questions**:
+- [unresolved question 1]
+- [unresolved question 2]
+
+> When this converges into a decision, rewrite in-place: change `### checkpoint.` to `### N.` and replace `Snapshot` / `Open questions` with `Options` / `Decision` / `Rationale`. In `index.yaml`, drop the `[checkpoint]` prefix from subTopics and increment `decisions`.
+
+---
+
 ## Execution plan
 
 [Describe the final plan, including key steps]
@@ -82,6 +100,12 @@ A standard session file template that supports recording multiple decision point
 - Give each decision point its own section
 - Record problem, options, decision, and rationale
 - Add more detail if the decision process was complex
+
+### Checkpoints (`### checkpoint. [title]`)
+- Use when a discussion is in progress but hasn't converged into a decision yet
+- Capture the current state of exploration so the next session can pick up the thread
+- In `index.yaml`, prefix the subTopic with `[checkpoint]` so recall can distinguish in-progress from settled
+- When the discussion later converges, rewrite in-place as `### N.` — do not keep both records (git handles history)
 
 ### Execution plan
 - Describe the plan that was finally adopted

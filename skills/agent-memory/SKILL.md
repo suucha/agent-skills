@@ -1,6 +1,6 @@
 ---
 name: agent-memory
-description: Set up an AI memory system that automatically captures important decisions during conversations and recalls them across agents and machines. Unlike a passive archive, this skill AUTO-SAVES when decision signals are detected (no need for the user to ask) and AUTO-RECALLS prior decisions at the start of each session. You MUST use this skill whenever the user mentions set up memory, initialize memory, enable memory, conversation memory, saving a conversation, session notes, AI notes, knowledge retention, team collaboration, or wants the AI to remember previous discussions — e.g. "set up memory", "initialize memory", "enable memory", "save this conversation", "record this", "session notes", "remember what we decided", "设置记忆", "初始化记忆", "启用记忆", or "记一下". Also applies when initializing a new project and establishing memory conventions. ALSO use this skill when the user asks what the skill does or how to use it — e.g. "memory help", "记忆帮助", "how does memory work", "怎么用记忆", "what did you save", "what triggers a save" — display the on-demand help text described in the "On-demand help" section.
+description: Set up an AI memory system that automatically captures important decisions during conversations and recalls them across agents and machines. Unlike a passive archive, this skill AUTO-SAVES when decision signals are detected (no need for the user to ask) and AUTO-RECALLS prior decisions at the start of each session. You MUST use this skill whenever the user mentions set up memory, initialize memory, enable memory, conversation memory, saving a conversation, session notes, AI notes, knowledge retention, team collaboration, or wants the AI to remember previous discussions — e.g. "set up memory", "initialize memory", "enable memory", "save this conversation", "record this", "session notes", "remember what we decided", "设置记忆", "初始化记忆", "启用记忆", or "记一下". Also use this skill when the user wants to save an in-progress discussion snapshot (not yet a decision) — e.g. "存个检查点", "记录讨论进度", "checkpoint this", "save a snapshot". Also applies when initializing a new project and establishing memory conventions. ALSO use this skill when the user asks what the skill does or how to use it — e.g. "memory help", "记忆帮助", "how does memory work", "怎么用记忆", "what did you save", "what triggers a save" — display the on-demand help text described in the "On-demand help" section.
 keywords: memory, session, tracking, decisions, recall, knowledge, conversation, notes, remember, 记录, 记忆
 ---
 
@@ -41,6 +41,12 @@ When the user asks what the skill does, how it works, or how to trigger a save �
 
 The single highest-value tip in the help is the **affirmative-language** guidance — call it out, because weak language ("选A吧" / "maybe A") is the leading cause of missed saves, and the user can fix it directly by changing how they phrase decisions.
 
+### Mode 4: Manual checkpoint (save in-progress discussion)
+
+When the user wants to capture the current state of a discussion that hasn't yet converged into a decision — e.g. "存个检查点", "记录讨论进度", "checkpoint this", "save a snapshot" — save a **checkpoint**. This is different from Mode 2 auto-save (which fires on decision signals) and from "记一下" (which forces a decision-style save).
+
+Checkpoints capture the *current state of exploration* — options on the table, which way the discussion is leaning, what's still open — so the next session can pick up the thread instead of re-doing the exploration. See **Step 3.5** for the save flow.
+
 ---
 
 ## On-demand help text
@@ -72,6 +78,7 @@ This skill detects decisions from your language. **Ambiguous phrasing gets misse
 - **Decisions to NOT do something count too.** "不做 X，因为 Y" / "we're not doing X because Y" is a first-class decision — recording it prevents the same question coming back next session.
 - **Manual triggers**:
   - "记一下" / "save this" / "record this" — force a save right now
+  - "存个检查点" / "checkpoint this" / "记录讨论进度" — save an in-progress discussion snapshot (not yet a decision); recorded as `### checkpoint.` section, surfaced differently during recall
   - "漏了" / "这条刚才没记下来" / "you didn't save that" — flag a missed save (the system self-improves via `IMPROVEMENTS.md`)
   - "记忆帮助" / "memory help" — show this help again
 - **Where things live**:
@@ -140,6 +147,11 @@ Append the tracking block to **both** files (see the canonical block in `## Cano
 
 (Continue for all decisions...)
 
+### checkpoint. [In-progress topic / exploration]
+**Problem**: [what's being explored — not yet decided]
+**Snapshot**: [current state — options on the table, which way leaning, key tradeoffs identified]
+**Open questions**: [unresolved questions]
+
 ## Execution plan
 [Optional: key implementation steps]
 
@@ -156,15 +168,17 @@ Append the tracking block to **both** files (see the canonical block in `## Cano
 **Field names are always English** — `Problem`, `Options`, `Decision`, `Rationale` — regardless of the session's language. Only the content (and `###` section titles) translate. This ensures reliable parsing across languages.
 
 **Critical parsing rules for agents:**
-- Each `###` heading within `## Discussion points and decisions` represents one decision point
-- Each decision MUST have `**Problem:**`, `**Decision:**`, and `**Rationale:**` fields (Options is optional)
+- `### N. [title]` → a **decision point**. MUST have `**Problem:**`, `**Decision:**`, and `**Rationale:**` (Options is optional)
+- `### checkpoint. [title]` → an **in-progress discussion snapshot** (not yet a decision). MUST have `**Problem:**`, `**Snapshot:**`, and `**Open questions:**`
+- During recall, treat them differently: decisions are settled conclusions; checkpoints are "in-progress, may be superseded" — never present a checkpoint as a settled decision
 - Section order is fixed: Background → Discussion → Execution → Related → Lessons → Follow-ups
 - Agents extract decisions by:
-  1. Reading `index.yaml` → get `subTopics` array (quick overview)
+  1. Reading `index.yaml` → get `subTopics` array (quick overview; entries with `[checkpoint]` prefix are in-progress)
   2. Opening file → locate `## Discussion points and decisions`
   3. Extract all `### [title]` subsections
-  4. For each subsection, extract Problem/Decision/Rationale fields
-  5. Skip low-priority sections (Execution plan, Related content, Follow-ups) during recall
+  4. For each `### N.` subsection, extract Problem/Decision/Rationale
+  5. For each `### checkpoint.` subsection, extract Problem/Snapshot/Open questions
+  6. Skip low-priority sections (Execution plan, Related content, Follow-ups) during recall
 
 ### Step 2: Auto-recall — at the start of a session (Mode 2, ongoing)
 
@@ -285,6 +299,55 @@ Before saving, scan for and remove:
 
 **Tell the user** what sensitive information you found and how you handled it.
 
+### Step 3.5: Checkpoint mode — saving in-progress discussions (Mode 4)
+
+Sometimes a discussion hasn't yet converged into a decision, but the context is rich enough that losing it would waste effort — long exploration, multiple options on the table, key tradeoffs identified. The user can ask to save a **checkpoint** to capture the current state.
+
+**Trigger phrases** (manual, user-initiated):
+- 中文："存个检查点" / "记录讨论进度" / "存档当前讨论"
+- English: "checkpoint this" / "save a snapshot" / "record where we are"
+
+This is **different from "记一下" / "save this"** — those force a *decision-style* save (with Problem/Decision/Rationale). A checkpoint explicitly says "we haven't decided yet" and saves the exploration state.
+
+#### 3.5.1 Save flow
+
+1. **Decide append vs new file** — same rules as decision save (topic continuity primary, time gap secondary)
+2. **Append a `### checkpoint. [Topic]` section** to the session file (do NOT use `### N.` numbering — checkpoints are not decisions)
+3. **Fill in:**
+   - **Problem**: what's being explored
+   - **Snapshot**: current state — options on the table, which way the discussion is leaning, key tradeoffs identified
+   - **Open questions**: list of unresolved questions
+4. **Update `index.yaml`**:
+   - Append to `subTopics` with `[checkpoint]` prefix: e.g. `[checkpoint] Auth approach — exploring JWT vs sessions`
+   - Update `lastUpdated`
+   - Do **NOT** increment `decisions` count (checkpoints aren't decisions)
+5. **Tell the user**: "Saved checkpoint to [file] — captured the current state of [topic]. Open questions: [...]. When this converges into a decision, I'll upgrade the section in-place."
+
+#### 3.5.2 Upgrade to decision (in-place rewrite)
+
+When a checkpoint later converges into a decision:
+
+1. **Rewrite the section header** `### checkpoint. [Topic]` → `### N. [Topic]` (use the next available number)
+2. **Replace fields**: drop `Snapshot` / `Open questions`, add `Options` (if applicable) / `Decision` / `Rationale`
+3. **Update `index.yaml`**:
+   - Remove the `[checkpoint]` prefix from the subTopic entry
+   - Increment `decisions` count
+   - Update `lastUpdated`
+4. **Do NOT keep a duplicate record** in the file — git preserves the original checkpoint state for traceability
+
+#### 3.5.3 Recall behavior
+
+During auto-recall, surface checkpoints differently from decisions:
+
+- **Decisions**: "We decided X because Y"
+- **Checkpoints**: "Last session we were exploring Z — options on the table were A/B/C, open question was Q. Treat as in-progress."
+
+This distinction prevents half-baked discussions from being treated as settled conclusions.
+
+#### 3.5.4 Auto-trigger (deferred to next version)
+
+A `PreCompact` hook will trigger checkpoint-save automatically before context compaction happens. For now, only manual triggers work — the user has to ask.
+
 ---
 
 ## Canonical tracking block
@@ -375,6 +438,30 @@ If you find yourself about to describe a decision you just made or helped make, 
 6. **Fill it in using the template** — capture the *why* and *how*, not transcripts
 7. **Tell the user** — where it was saved, what was captured, what was sanitized
 
+### Checkpoints (in-progress discussion snapshots)
+
+Sometimes a discussion hasn't converged into a decision yet, but the context is rich enough to be worth saving. The user can trigger a checkpoint manually:
+
+- 中文："存个检查点" / "记录讨论进度"
+- English: "checkpoint this" / "save a snapshot"
+
+**Save flow:**
+
+1. **Decide append vs new file** — same rules as decision save (topic continuity primary, time gap secondary)
+2. Append a `### checkpoint. [Topic]` section to the session file with `Problem` / `Snapshot` / `Open questions` fields
+3. Update `index.yaml`: append `[checkpoint] [Topic]` to `subTopics` (with prefix), update `lastUpdated`, do **NOT** increment `decisions`
+4. Tell the user it was saved as a checkpoint
+
+**Upgrade to decision (in-place rewrite):**
+
+When the checkpoint later converges into a decision:
+
+1. Rewrite `### checkpoint. [Topic]` → `### N. [Topic]`
+2. Replace `Snapshot` / `Open questions` with `Options` / `Decision` / `Rationale`
+3. Update `index.yaml`: remove `[checkpoint]` prefix, increment `decisions`, update `lastUpdated`
+
+Git preserves the original checkpoint for traceability — no need to keep a duplicate record in the file.
+
 ### index.yaml structure
 
 ```yaml
@@ -388,13 +475,13 @@ sessions:
     lastUpdated: "YYYY-MM-DD HH:MM"
     subTopics:
       - "Decision 1 title"
+      - "[checkpoint] In-progress topic title"   # prefix marks checkpoints
       - "Decision 2 title"
-      - "Decision 3 title"
 ```
 
-- **subTopics**: List of all `###` headings from `## Discussion points and decisions` section (auto-extracted when saving)
+- **subTopics**: List of all `###` headings from `## Discussion points and decisions` section (auto-extracted when saving); entries prefixed with `[checkpoint]` are in-progress snapshots, not decisions
 - **lastUpdated**: Timestamp of last modification (used to decide append vs create new)
-- **decisions**: Count of decision points in the file
+- **decisions**: Count of decision points in the file (does NOT include checkpoints)
 
 ### Language
 
@@ -440,6 +527,20 @@ The record should read naturally for the team that will use it.
 - [ ] Updated `index.yaml` (newest first)
 - [ ] Written in the user's conversational language (unless they asked otherwise)
 - [ ] Told the user: what was saved, what was sanitized
+
+### On manual checkpoint trigger
+- [ ] Saved as `### checkpoint. [Topic]` section (NOT `### N.`)
+- [ ] Included Problem / Snapshot / Open questions
+- [ ] Updated `index.yaml` with `[checkpoint]` prefix on the subTopic
+- [ ] Did NOT increment `decisions` count
+- [ ] Told the user it was saved as a checkpoint (not as a decision)
+
+### On checkpoint → decision upgrade
+- [ ] Rewrote `### checkpoint.` → `### N.` in-place
+- [ ] Replaced Snapshot/Open questions with Options/Decision/Rationale
+- [ ] Removed `[checkpoint]` prefix from subTopics
+- [ ] Incremented `decisions` count
+- [ ] Did NOT keep a duplicate record (git handles history)
 
 ---
 
