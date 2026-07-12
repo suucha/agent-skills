@@ -3,6 +3,16 @@
 # Newest sessions first
 
 sessions:
+  - date: "2026-07-12"
+    time: "14:58"
+    topic: "上下文超长时主动存档讨论要点 — 范围决策"
+    file: "2026-07-12/14-58-context-length-save-deferral.md"
+    type: "design"
+    decisions: 2
+    lastUpdated: "2026-07-12 14:58"
+    subTopics:
+      - "上下文超长触发存档 — 本版本不加，保持现状"
+      - "实现路径预判：下个版本优先用 PreCompact hook"
   - date: "2026-07-11"
     time: "17:35"
     topic: "agent-memory 自举验证环境搭建"
