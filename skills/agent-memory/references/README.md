@@ -5,7 +5,7 @@ This directory stores the AI agent's memory - decision records that persist acro
 ## Directory Structure
 
 ```
-agent-memory/
+.agent-memory/
 ├── index.yaml              # session index (auto-maintained)
 ├── IMPROVEMENTS.md         # rule-gap log (self-improvement)
 ├── template.md             # session file template
@@ -39,7 +39,7 @@ Recommended to commit this directory to the repository to support:
 - Complete project history
 
 ```bash
-git add agent-memory/
+git add .agent-memory/
 git commit -m "docs: record AI session - [topic]"
 ```
 

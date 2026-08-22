@@ -8,7 +8,7 @@ Modern development involves multiple AI agents (Claude Code, Cursor, Kiro, OpenC
 
 ## 📦 Available Skills
 
-### 🧠 [agent-memory](./agent-memory/)
+### 🧠 [agent-memory](./.agent-memory/)
 
 Turn AI conversations into **reusable memory** — auto-saves decisions when they happen and auto-recalls them next time, so no agent ever starts blind.
 
@@ -60,7 +60,7 @@ The agent will automatically configure the memory system for your project.
 suucha/agent-skills/
 ├── README.md                    # This file
 ├── LICENSE                      # MIT
-├── agent-memory/               # Memory system skill
+├── .agent-memory/               # Memory system skill
 │   ├── README.md
 │   ├── SKILL.md
 │   ├── evals/
@@ -101,9 +101,9 @@ This is the memory system I built for my own projects after getting tired of re-
 
 ## 📚 Learn More
 
-- [agent-memory documentation](./agent-memory/README.md)
-- [Session file format](./agent-memory/references/template.md)
-- [Design philosophy](./agent-memory/references/IMPROVEMENTS.md)
+- [agent-memory documentation](./.agent-memory/README.md)
+- [Session file format](./.agent-memory/references/template.md)
+- [Design philosophy](./.agent-memory/references/IMPROVEMENTS.md)
 
 ---
 

@@ -8,7 +8,7 @@ When developing the `agent-memory` skill, files in `skills/agent-memory/` serve 
 
 ### After modifying any file in `skills/agent-memory/`:
 
-**ALWAYS synchronize changes to all skill directories.** Use **delete-then-copy** — `Copy-Item -Recurse -Force` and `cp -r` both silently copy *into* an existing destination instead of replacing it, creating a nested `agent-memory/agent-memory/`. After the first sync the destination always exists, so every subsequent sync hits this trap unless you remove first.
+**ALWAYS synchronize changes to all skill directories.** Use **delete-then-copy** — `Copy-Item -Recurse -Force` and `cp -r` both silently copy *into* an existing destination instead of replacing it, creating a nested `.agent-memory/.agent-memory/`. After the first sync the destination always exists, so every subsequent sync hits this trap unless you remove first.
 
 **PowerShell** (run in PowerShell window, or `powershell.exe -Command` from another shell):
 
@@ -62,9 +62,9 @@ If you find yourself syncing frequently, you can create a PowerShell script or g
 This project uses the `agent-memory` skill to validate itself during development (dogfooding).
 
 Once the skill is loaded (after copying to `.kiro/skills/`), it will:
-- Auto-save decisions to `agent-memory/` at the project root
+- Auto-save decisions to `.agent-memory/` at the project root
 - Auto-recall prior decisions at session start
-- Record missed saves to `agent-memory/IMPROVEMENTS.md`
+- Record missed saves to `.agent-memory/IMPROVEMENTS.md`
 
 This creates a feedback loop where the skill validates itself in real-world usage.
 
@@ -73,7 +73,7 @@ This creates a feedback loop where the skill validates itself in real-world usag
 ### Directory Structure
 
 ```
-agent-memory/
+.agent-memory/
 ├── index.yaml            # session index (auto-maintained, newest first)
 ├── IMPROVEMENTS.md       # rule-gap log (self-maintaining backlog of missed saves)
 ├── template.md           # session file template
@@ -90,7 +90,7 @@ the system has no way to know — unless the user points it out.
 **When the user says "这条刚才没记下来" / "you didn't save that" / "that should have been saved" / "漏了":**
 
 1. **Save the decision** that was missed (append to today's session file + update index.yaml) — this is recovery.
-2. **Append a gap entry to `agent-memory/IMPROVEMENTS.md`** — this is prevention. Use the entry template at the bottom of that file. Record: date, symptom (what was discussed but not saved), root cause (which signal was missing/ambiguous), status (open).
+2. **Append a gap entry to `.agent-memory/IMPROVEMENTS.md`** — this is prevention. Use the entry template at the bottom of that file. Record: date, symptom (what was discussed but not saved), root cause (which signal was missing/ambiguous), status (open).
 
 This makes the system its own bug tracker: gaps accumulate in a file (not in
 someone's memory), and any future session that wants to improve the rules reads
@@ -102,7 +102,7 @@ carries it forward.**
 
 Two-layer recall — cheap scan first, deep read only when relevant:
 
-1. **Lightweight scan**: read `agent-memory/index.yaml`, scan ALL sessions' `subTopics`, judge which sessions are relevant to the current question
+1. **Lightweight scan**: read `.agent-memory/index.yaml`, scan ALL sessions' `subTopics`, judge which sessions are relevant to the current question
 2. **Deep extraction**: for each relevant session, open the file, extract Problem/Decision/Rationale from each `###` subsection under `## Discussion points and decisions`
 3. **Fallback**: if no sessions match by subTopics, read the ~5 most recent sessions in full
 
@@ -136,7 +136,7 @@ If you find yourself about to describe a decision you just made or helped make, 
 
 ### Saving process
 
-1. **Read the template** — read `agent-memory/template.md` first to understand the format
+1. **Read the template** — read `.agent-memory/template.md` first to understand the format
 2. **Sanitize content** — remove sensitive information (passwords, keys, PII, etc.)
 3. **Decide: append or create new**:
    - **Primary signal — topic continuity**: append if the current decision continues the same topic as the most recent session; create new if the topic has significantly changed
@@ -145,7 +145,7 @@ If you find yourself about to describe a decision you just made or helped make, 
    - Add new `### N. [Decision title]` section to `## Discussion points and decisions`
    - Update `index.yaml`: increment `decisions`, update `lastUpdated`, append to `subTopics`
 5. **When creating new**:
-   - Create `agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
+   - Create `.agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
    - Add entry to `index.yaml` (newest first) with: date, time, topic, file, type, decisions (initially 1), lastUpdated, subTopics (initially one title)
 6. **Fill it in using the template** — capture the *why* and *how*, not transcripts
 7. **Tell the user** — where it was saved, what was captured, what was sanitized

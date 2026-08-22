@@ -1,6 +1,6 @@
 ---
 name: agent-memory
-description: Set up an AI memory system that automatically captures important decisions during conversations and recalls them across agents and machines. Unlike a passive archive, this skill AUTO-SAVES when decision signals are detected (no need for the user to ask) and AUTO-RECALLS prior decisions at the start of each session. You MUST use this skill whenever the user mentions set up memory, initialize memory, enable memory, conversation memory, saving a conversation, session notes, AI notes, knowledge retention, team collaboration, or wants the AI to remember previous discussions — e.g. "set up memory", "initialize memory", "enable memory", "save this conversation", "record this", "session notes", "remember what we decided", "设置记忆", "初始化记忆", "启用记忆", or "记一下". Also use this skill when the user wants to save an in-progress discussion snapshot (not yet a decision) — e.g. "存个检查点", "记录讨论进度", "checkpoint this", "save a snapshot". Also applies when initializing a new project and establishing memory conventions. ALSO use this skill when the user asks what the skill does or how to use it — e.g. "memory help", "记忆帮助", "how does memory work", "怎么用记忆", "what did you save", "what triggers a save" — display the on-demand help text described in the "On-demand help" section.
+description: Auto-saves decisions during conversations and auto-recalls them at session start across agents and machines. Use when user mentions memory setup, saving conversations, checkpoints, or asks for help.
 keywords: memory, session, tracking, decisions, recall, knowledge, conversation, notes, remember, 记录, 记忆
 ---
 
@@ -82,9 +82,9 @@ This skill detects decisions from your language. **Ambiguous phrasing gets misse
   - "漏了" / "这条刚才没记下来" / "you didn't save that" — flag a missed save (the system self-improves via `IMPROVEMENTS.md`)
   - "记忆帮助" / "memory help" — show this help again
 - **Where things live**:
-  - `agent-memory/index.yaml` — session index (newest first)
-  - `agent-memory/YYYY-MM-DD/HH-MM-topic.md` — individual session files
-  - `agent-memory/IMPROVEMENTS.md` — backlog of missed saves (the system's own bug tracker)
+  - `.agent-memory/index.yaml` — session index (newest first)
+  - `.agent-memory/YYYY-MM-DD/HH-MM-topic.md` — individual session files
+  - `.agent-memory/IMPROVEMENTS.md` — backlog of missed saves (the system's own bug tracker)
 
 ---
 
@@ -92,12 +92,32 @@ This skill detects decisions from your language. **Ambiguous phrasing gets misse
 
 ### Step 1: Initialize (Mode 1)
 
+#### 0. Upgrade migration — from old `agent-memory/` directory
+
+The storage folder was renamed from `agent-memory/` to `.agent-memory/` (dotfile
+convention). Existing installs still have `agent-memory/`. When this skill runs
+init / recall and finds `agent-memory/` present but `.agent-memory/` absent,
+migrate it so the project converges on the single canonical name.
+
+**Flow (confirm before moving user data — never silent):**
+
+1. Detect: `agent-memory/` exists AND `.agent-memory/` does NOT exist.
+2. Tell the user: "检测到旧记忆目录 `agent-memory/`,是否迁移到 `.agent-memory/`?(旧目录会被重命名,历史由 git 保留)"
+3. On confirmation, migrate:
+   - In a git repo: `git mv agent-memory .agent-memory` (preserves history)
+   - Not a git repo: `mv agent-memory .agent-memory`
+   - Rewrite references in `AGENTS.md` and `CLAUDE.md`: replace `agent-memory/` → `.agent-memory/` (data-dir references only — do NOT touch `skills/agent-memory`, the skill package path)
+4. If BOTH `agent-memory/` and `.agent-memory/` exist: prefer `.agent-memory/`; tell the user the old `agent-memory/` is stale and can be deleted after they confirm nothing is missing.
+5. After migration, proceed with `.agent-memory/` for all subsequent save/recall. The recall/save hot path always uses `.agent-memory/` — there is no dual-directory fallback.
+
+**Why confirm first:** moving a user's memory is a data operation. The skill must not silently relocate files; the user confirms, then the one-time move happens.
+
 #### 1.1 Create the directory structure
 
 At the project root, create:
 
 ```
-agent-memory/
+.agent-memory/
 ├── README.md                    # usage instructions
 ├── IMPROVEMENTS.md              # rule-gap log (self-maintaining backlog of missed saves)
 ├── template.md                  # session template (copied from this skill)
@@ -108,9 +128,9 @@ agent-memory/
 ```
 
 Copy these files from the skill's `references/` directory:
-- `references/README.md` → `agent-memory/README.md`
-- `references/IMPROVEMENTS.md` → `agent-memory/IMPROVEMENTS.md`
-- `references/template.md` → `agent-memory/template.md`
+- `references/README.md` → `.agent-memory/README.md`
+- `references/IMPROVEMENTS.md` → `.agent-memory/IMPROVEMENTS.md`
+- `references/template.md` → `.agent-memory/template.md`
 
 #### 1.2 Update AGENTS.md and CLAUDE.md
 
@@ -187,7 +207,7 @@ Append the tracking block to **both** files (see the canonical block in `## Cano
 #### 2.1 Extraction process (two layers)
 
 **Layer 1 — Lightweight scan (always runs, cheap):**
-1. Read `agent-memory/index.yaml` → scan ALL sessions' `subTopics` arrays
+1. Read `.agent-memory/index.yaml` → scan ALL sessions' `subTopics` arrays
 2. Judge which sessions are relevant to the current question/task (based on subTopics matching keywords/topics in the user's message)
 3. One file read — no deep parsing
 
@@ -278,12 +298,12 @@ Capture the **why and how decisions were made** — not word-for-word transcript
    - Append new decision title to `subTopics` array
 
 **When creating new file:**
-1. Read `agent-memory/template.md` for the format
+1. Read `.agent-memory/template.md` for the format
 2. **Sanitize** sensitive information (see §3.4)
-3. Create `agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
+3. Create `.agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
 4. Write in the **user's conversational language** (see Language section)
 5. Add new entry to `index.yaml` (newest first) with: date, time, topic, file, type, decisions (initially 1), lastUpdated, subTopics (initially one title)
-6. **Tell the user** — briefly: "Saved a decision to `agent-memory/YYYY-MM-DD/HH-MM-topic.md` — [what was captured]. [What was sanitized, if anything]."
+6. **Tell the user** — briefly: "Saved a decision to `.agent-memory/YYYY-MM-DD/HH-MM-topic.md` — [what was captured]. [What was sanitized, if anything]."
 
 #### 3.4 Sanitize sensitive information
 
@@ -361,7 +381,7 @@ This is the block to inject into both `AGENTS.md` and `CLAUDE.md` during initial
 ### Directory Structure
 
 ```
-agent-memory/
+.agent-memory/
 ├── index.yaml            # session index (auto-maintained, newest first)
 ├── IMPROVEMENTS.md       # rule-gap log (self-maintaining backlog of missed saves)
 ├── template.md           # session file template
@@ -378,7 +398,7 @@ the system has no way to know — unless the user points it out.
 **When the user says "这条刚才没记下来" / "you didn't save that" / "that should have been saved" / "漏了":**
 
 1. **Save the decision** that was missed (append to today's session file + update index.yaml) — this is recovery.
-2. **Append a gap entry to `agent-memory/IMPROVEMENTS.md`** — this is prevention. Use the entry template at the bottom of that file. Record: date, symptom (what was discussed but not saved), root cause (which signal was missing/ambiguous), status (open).
+2. **Append a gap entry to `.agent-memory/IMPROVEMENTS.md`** — this is prevention. Use the entry template at the bottom of that file. Record: date, symptom (what was discussed but not saved), root cause (which signal was missing/ambiguous), status (open).
 
 This makes the system its own bug tracker: gaps accumulate in a file (not in
 someone's memory), and any future session that wants to improve the rules reads
@@ -390,7 +410,7 @@ carries it forward.**
 
 Two-layer recall — cheap scan first, deep read only when relevant:
 
-1. **Lightweight scan**: read `agent-memory/index.yaml`, scan ALL sessions' `subTopics`, judge which sessions are relevant to the current question
+1. **Lightweight scan**: read `.agent-memory/index.yaml`, scan ALL sessions' `subTopics`, judge which sessions are relevant to the current question
 2. **Deep extraction**: for each relevant session, open the file, extract Problem/Decision/Rationale from each `###` subsection under `## Discussion points and decisions`
 3. **Fallback**: if no sessions match by subTopics, read the ~5 most recent sessions in full
 
@@ -424,7 +444,7 @@ If you find yourself about to describe a decision you just made or helped make, 
 
 ### Saving process
 
-1. **Read the template** — read `agent-memory/template.md` first to understand the format
+1. **Read the template** — read `.agent-memory/template.md` first to understand the format
 2. **Sanitize content** — remove sensitive information (passwords, keys, PII, etc.)
 3. **Decide: append or create new**:
    - **Primary signal — topic continuity**: append if the current decision continues the same topic as the most recent session; create new if the topic has significantly changed
@@ -433,7 +453,7 @@ If you find yourself about to describe a decision you just made or helped make, 
    - Add new `### N. [Decision title]` section to `## Discussion points and decisions`
    - Update `index.yaml`: increment `decisions`, update `lastUpdated`, append to `subTopics`
 5. **When creating new**:
-   - Create `agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
+   - Create `.agent-memory/YYYY-MM-DD/HH-MM-topic.md` with full template structure
    - Add entry to `index.yaml` (newest first) with: date, time, topic, file, type, decisions (initially 1), lastUpdated, subTopics (initially one title)
 6. **Fill it in using the template** — capture the *why* and *how*, not transcripts
 7. **Tell the user** — where it was saved, what was captured, what was sanitized
@@ -551,4 +571,4 @@ The record should read naturally for the team that will use it.
 - **Why auto-recall is non-negotiable**: a memory that isn't read is just a diary. The recall step is what makes this valuable across agents and machines — the core use case ("switch machines, new agent picks up where the last left off") only works if recall runs.
 - **Why both `AGENTS.md` and `CLAUDE.md`**: each tool reads only its own config file. If you update one, users of the other tool never see the rules.
 - **Why `index.yaml`**: scanning a directory of markdown files every session start is wasteful and slow. A single index file lets auto-recall read one file to find the recent sessions, then pull only those. The index is auto-maintained — every save appends an entry.
-- **Cross-agent memory**: the `agent-memory/` directory (plain markdown + yaml, committed to git) is the **provider-neutral memory layer**. Each agent vendor locks memory inside its own format (Claude's, Cursor's, etc.); this directory is the escape hatch. The auto-recall step is what bridges vendor-specific sessions into this shared layer.
+- **Cross-agent memory**: the `.agent-memory/` directory (plain markdown + yaml, committed to git) is the **provider-neutral memory layer**. Each agent vendor locks memory inside its own format (Claude's, Cursor's, etc.); this directory is the escape hatch. The auto-recall step is what bridges vendor-specific sessions into this shared layer.

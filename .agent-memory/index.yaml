@@ -3,6 +3,18 @@
 # Newest sessions first
 
 sessions:
+  - date: "2026-08-22"
+    time: "21:33"
+    topic: "记忆存储目录改名 agent-memory → .agent-memory"
+    file: "2026-08-22/21-33-rename-storage-dir-to-dot-agent-memory.md"
+    type: "design"
+    decisions: 4
+    lastUpdated: "2026-08-22 21:33"
+    subTopics:
+      - "存储目录改名 agent-memory → .agent-memory（仅数据目录）"
+      - "改名范围界定：技能包目录与历史文件不动"
+      - "升级迁移策略：确认后自动迁移（Option A）"
+      - "顺手修 evals.json 旧命名 ai-session-tracker/ai-sessions"
   - date: "2026-07-12"
     time: "14:58"
     topic: "上下文超长存档 + 手动 checkpoint 机制设计"

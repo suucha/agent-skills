@@ -5,7 +5,7 @@ This directory stores the AI agent's memory - decision records from developing t
 ## Directory Structure
 
 ```
-agent-memory/
+.agent-memory/
 ├── index.yaml              # session index (auto-maintained)
 ├── IMPROVEMENTS.md         # rule-gap log (self-improvement)
 ├── template.md             # session file template
@@ -41,10 +41,10 @@ Recommended to commit this directory to the repository to support:
 - Complete project history
 
 ```bash
-git add agent-memory/
+git add .agent-memory/
 git commit -m "docs: record AI session - [topic]"
 ```
 
 ## About This Project
 
-This `agent-memory/` directory is produced by the agent-memory skill **itself** - we're using it to record decisions made while developing the skill. This is the strictest test: if the skill can't support its own development, how can we recommend it to others?
+This `.agent-memory/` directory is produced by the agent-memory skill **itself** - we're using it to record decisions made while developing the skill. This is the strictest test: if the skill can't support its own development, how can we recommend it to others?

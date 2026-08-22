@@ -7,12 +7,12 @@ Unlike a passive archive, this system has two active mechanisms:
 - **Auto-save** — detects decision signals and saves *without waiting for the user to ask*
 - **Auto-recall** — reads prior decisions at the start of a session and surfaces them
 
-The `agent-memory/` directory (plain markdown, committed to git) is the **provider-neutral memory layer**: each agent vendor locks memory inside its own format, this directory is the escape hatch that works across Claude Code, Cursor, opencode, Kiro, and any future agent.
+The `.agent-memory/` directory (plain markdown, committed to git) is the **provider-neutral memory layer**: each agent vendor locks memory inside its own format, this directory is the escape hatch that works across Claude Code, Cursor, opencode, Kiro, and any future agent.
 
 ## Features
 
 - Injects auto-save + auto-recall rules into `AGENTS.md` and `CLAUDE.md`
-- Scaffolds an `agent-memory/` directory and copies in the session template
+- Scaffolds an `.agent-memory/` directory and copies in the session template
 - Supports a session format with multiple decision points
 - Auto-saves on decision signals (no need to remember to ask)
 - Auto-recalls prior decisions at session start
@@ -43,8 +43,8 @@ Or:
 ```
 
 The AI will automatically:
-1. Create the `agent-memory/` directory
-2. Copy `template.md` into `agent-memory/`
+1. Create the `.agent-memory/` directory
+2. Copy `template.md` into `.agent-memory/`
 3. Add the tracking rules to `AGENTS.md`
 4. Add the tracking rules to `CLAUDE.md`
 
@@ -60,7 +60,7 @@ You can still explicitly say "save this" or "记一下" if you want to force a s
 ## Directory structure
 
 ```
-agent-memory/
+.agent-memory/
 ├── template.md        # session template
 ├── README.md          # usage instructions
 └── YYYY-MM-DD/
@@ -108,7 +108,7 @@ The record is never automatically translated. User's explicit language choice al
 Session files should be committed to the repo to support team collaboration:
 
 ```bash
-git add agent-memory/
+git add .agent-memory/
 git commit -m "docs: record AI session - [topic]"
 ```
 
@@ -117,7 +117,7 @@ git commit -m "docs: record AI session - [topic]"
 If sessions may contain sensitive information, exclude them:
 
 ```
-agent-memory/
+.agent-memory/
 ```
 
 ## License
