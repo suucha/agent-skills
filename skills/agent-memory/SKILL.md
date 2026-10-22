@@ -364,9 +364,13 @@ During auto-recall, surface checkpoints differently from decisions:
 
 This distinction prevents half-baked discussions from being treated as settled conclusions.
 
-#### 3.5.4 Auto-trigger (deferred to next version)
+#### 3.5.4 Future: Auto-trigger on context compaction
 
-A `PreCompact` hook will trigger checkpoint-save automatically before context compaction happens. For now, only manual triggers work — the user has to ask.
+**Planned for next version** (not yet implemented): A `PreCompact` hook that triggers checkpoint-save automatically before context compaction happens, so rich discussions aren't lost when context is compressed.
+
+**Current version**: Only manual triggers work — the user has to explicitly ask ("存个检查点" / "checkpoint this").
+
+**Design rationale**: Recorded in `.agent-memory/2026-07-12/14-58-context-length-save-deferral.md` — decision #2 chose `PreCompact` hook as the implementation path once Kiro's hook system supports it.
 
 ---
 

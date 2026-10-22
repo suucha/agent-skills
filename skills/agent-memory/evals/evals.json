@@ -30,6 +30,12 @@
       "prompt": "我们开了一个产品评审会议，讨论了几个功能需求和优先级，帮我记录一下会议纪要。",
       "expected_output": "The skill should: 1) use the non-coding template; 2) record discussion points and decisions; 3) include follow-up TODOs; 4) suit a non-technical scenario; 5) write the file in Chinese, matching the user's language.",
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "设置记忆",
+      "expected_output": "The skill should: 1) detect existing agent-memory/ directory (if present in test setup); 2) ask user for confirmation to migrate: '检测到旧记忆目录 `agent-memory/`,是否迁移到 `.agent-memory/`?(旧目录会被重命名,历史由 git 保留)'; 3) on confirmation, execute 'git mv agent-memory .agent-memory'; 4) rewrite references in AGENTS.md and CLAUDE.md (agent-memory/ → .agent-memory/, protecting skills/agent-memory paths); 5) proceed with normal init if no old directory exists.",
+      "files": ["agent-memory/index.yaml", "agent-memory/template.md"]
     }
   ]
 }
