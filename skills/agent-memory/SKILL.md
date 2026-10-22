@@ -61,115 +61,17 @@ Adapt the language to match the user's (Chinese ↔ English); keep the structure
 
 ## Core workflow
 
-### Step 1: Initialize (Mode 1)
+### Step 1: Initialize (Mode 1) — one-time setup
 
-#### 0. Upgrade migration — from old `agent-memory/` directory
+When the user triggers initialization, follow this sequence:
 
-The storage folder was renamed from `agent-memory/` to `.agent-memory/` (dotfile
-convention). Existing installs still have `agent-memory/`. When this skill runs
-init / recall and finds `agent-memory/` present but `.agent-memory/` absent,
-migrate it so the project converges on the single canonical name.
+1. **Check for migration first**: If an old `agent-memory/` directory exists, read and follow:
+   #[[file:references/migration.md]]
 
-**Flow (confirm before moving user data — never silent):**
+2. **Then initialize**: Read and follow the complete initialization guide:
+   #[[file:references/initialization.md]]
 
-1. Detect: `agent-memory/` exists AND `.agent-memory/` does NOT exist.
-2. Tell the user: "检测到旧记忆目录 `agent-memory/`,是否迁移到 `.agent-memory/`?(旧目录会被重命名,历史由 git 保留)"
-3. On confirmation, migrate:
-   - In a git repo: `git mv agent-memory .agent-memory` (preserves history)
-   - Not a git repo: `mv agent-memory .agent-memory`
-   - Rewrite references in `AGENTS.md` and `CLAUDE.md`: replace `agent-memory/` → `.agent-memory/` (data-dir references only — do NOT touch `skills/agent-memory`, the skill package path)
-4. If BOTH `agent-memory/` and `.agent-memory/` exist: prefer `.agent-memory/`; tell the user the old `agent-memory/` is stale and can be deleted after they confirm nothing is missing.
-5. After migration, proceed with `.agent-memory/` for all subsequent save/recall. The recall/save hot path always uses `.agent-memory/` — there is no dual-directory fallback.
-
-**Why confirm first:** moving a user's memory is a data operation. The skill must not silently relocate files; the user confirms, then the one-time move happens.
-
-#### 1.1 Create the directory structure
-
-At the project root, create:
-
-```
-.agent-memory/
-├── README.md                    # usage instructions
-├── IMPROVEMENTS.md              # rule-gap log (self-maintaining backlog of missed saves)
-├── template.md                  # session template (copied from this skill)
-├── .gitignore                   # exclude sensitive info (optional)
-└── YYYY-MM-DD/                  # organized by date
-    ├── HH-MM-topic.md
-    └── ...
-```
-
-Copy these files from the skill's `references/` directory:
-- `references/README.md` → `.agent-memory/README.md`
-- `references/IMPROVEMENTS.md` → `.agent-memory/IMPROVEMENTS.md`
-- `references/template.md` → `.agent-memory/template.md`
-
-#### 1.2 Update AGENTS.md and CLAUDE.md
-
-Append the tracking block to **both** files (see the canonical block in `## Canonical tracking block` below). Check first to avoid duplicates.
-
-### Step 1.5: Session File Structure (strict format)
-
-**Every session file MUST follow this standardized structure.** This enables reliable parsing by any agent.
-
-```markdown
-# [Main Topic]
-
-- **Date**: YYYY-MM-DD HH:MM
-- **Participants**: [user] + [AI tool name]
-- **Type**: [coding / design / discussion / research / other]
-
-## Background
-[One paragraph describing why this session happened and what the goal is]
-
-## Discussion points and decisions
-
-### 1. [Decision title]
-**Problem**: [One paragraph describing what needs to be solved]
-**Options**: [Optional: list of options considered]
-**Decision**: [One sentence stating the final choice]
-**Rationale**: [Bullet points or paragraph explaining why]
-
----
-
-### 2. [Next decision title]
-**Problem**: ...
-**Decision**: ...
-**Rationale**: ...
-
-(Continue for all decisions...)
-
-### checkpoint. [In-progress topic / exploration]
-**Problem**: [what's being explored — not yet decided]
-**Snapshot**: [current state — options on the table, which way leaning, key tradeoffs identified]
-**Open questions**: [unresolved questions]
-
-## Execution plan
-[Optional: key implementation steps]
-
-## Related content
-[Optional: code changes, references]
-
-## Lessons learned
-[Optional: reusable patterns, pitfalls to avoid]
-
-## Follow-ups / TODOs
-[Optional: pending tasks]
-```
-
-**Field names are always English** — `Problem`, `Options`, `Decision`, `Rationale` — regardless of the session's language. Only the content (and `###` section titles) translate. This ensures reliable parsing across languages.
-
-**Critical parsing rules for agents:**
-- `### N. [title]` → a **decision point**. MUST have `**Problem:**`, `**Decision:**`, and `**Rationale:**` (Options is optional)
-- `### checkpoint. [title]` → an **in-progress discussion snapshot** (not yet a decision). MUST have `**Problem:**`, `**Snapshot:**`, and `**Open questions:**`
-- During recall, treat them differently: decisions are settled conclusions; checkpoints are "in-progress, may be superseded" — never present a checkpoint as a settled decision
-- Section order is fixed: Background → Discussion → Execution → Related → Lessons → Follow-ups
-- Agents extract decisions by:
-  1. Reading `index.yaml` → get `subTopics` array (quick overview; entries with `[checkpoint]` prefix are in-progress)
-  2. Opening file → locate `## Discussion points and decisions`
-  3. Extract all `### [title]` subsections
-  4. For each `### N.` subsection, extract Problem/Decision/Rationale
-  5. For each `### checkpoint.` subsection, extract Problem/Snapshot/Open questions
-  6. Skip low-priority sections (Execution plan, Related content, Follow-ups) during recall
+**Important**: Always create/update both `AGENTS.md` and `CLAUDE.md` — each tool reads only its own config file
 
 ### Step 2: Auto-recall — at the start of a session (Mode 2, ongoing)
 
