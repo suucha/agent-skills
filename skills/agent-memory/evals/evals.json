@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "我想在项目里设置AI会话记录，让每次重要讨论都能保存下来，方便以后查阅。帮我配置一下。",
-      "expected_output": "The skill should: 1) create the .agent-memory directory; 2) add session-tracking rules to AGENTS.md; 3) add session-tracking rules to CLAUDE.md; 4) explain how to use it. Note: prompts and injected file content are processed as-is, but saved session files follow the user's language (Chinese here).",
+      "expected_output": "The skill should: 1) create the .agent-memory directory and index.yaml containing sessions: []; 2) create missing README.md, IMPROVEMENTS.md and template.md while preserving existing files; 3) add session-tracking rules to both AGENTS.md and CLAUDE.md; 4) briefly explain that setup is complete. Saved session titles and content follow the user's language (Chinese here), while structural headings and field names stay English.",
       "files": []
     },
     {
@@ -36,6 +36,54 @@
       "prompt": "设置记忆",
       "expected_output": "The skill should: 1) detect existing agent-memory/ directory (if present in test setup); 2) ask user for confirmation to migrate: '检测到旧记忆目录 `agent-memory/`,是否迁移到 `.agent-memory/`?(旧目录会被重命名,历史由 git 保留)'; 3) on confirmation, execute 'git mv agent-memory .agent-memory'; 4) rewrite references in AGENTS.md and CLAUDE.md (agent-memory/ → .agent-memory/, protecting skills/agent-memory paths); 5) proceed with normal init if no old directory exists.",
       "files": ["agent-memory/index.yaml", "agent-memory/template.md"]
+    },
+    {
+      "id": 7,
+      "prompt": "项目已经设置过记忆。测试前请在临时项目中准备 .agent-memory/IMPROVEMENTS.md，包含一条尚未解决的 GAP-001；index.yaml 包含一条历史会话，template.md 和 README.md 含有用户定制内容，历史会话文件也存在。现在再次执行：设置记忆。",
+      "expected_output": "Reinitialization preserves the exact contents of the existing IMPROVEMENTS.md, index.yaml, template.md, README.md and historical session files. It creates only missing scaffold files and checks both tracking-rule files without duplicating the tracking block. GAP-001 and the historical index entry remain intact.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "在一个全新的临时项目里设置记忆，不保存任何决策，然后模拟下一会话开始时自动召回。",
+      "expected_output": "Initialization creates .agent-memory/index.yaml with sessions: []. Recall reads the empty index, briefly reports that no memories have been saved, and continues the task without attempting to open nonexistent session files or fabricating prior decisions.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "在已初始化的临时项目中，用中文保存这个决策：我们确定用 Markdown 保存记忆，因为团队需要直接阅读和审阅变更。然后为尚未决定的索引扩展方案存个检查点，并模拟下一会话召回。",
+      "expected_output": "Session and subsection title text and body content are Chinese. Structural ## headings, metadata and decision/checkpoint field names stay English; ### N. and ### checkpoint. prefixes are preserved. The index distinguishes the checkpoint with [checkpoint]. Recall locates ## Discussion points and decisions, extracts the settled decision, and surfaces the checkpoint as in progress.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "测试前在临时项目准备至少 6 个会话及完整索引：最新 5 个均讨论其他功能，第 6 个的 subTopics 是“记忆索引检索方案”，记录已决定使用主题匹配。现在开始新会话，询问：之前记忆索引检索方案是怎么定的？",
+      "expected_output": "Recall scans subTopics across every index entry, opens the older matching session and reports its decision and rationale. It does not unconditionally read the newest five unrelated sessions. The recent-five fallback applies only if no subTopics match.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "在已初始化且 index.yaml 为 sessions: [] 的临时项目中：我们正在探索 Markdown 索引检索与全文检索的取舍，还没有决定，存个检查点。下一轮先召回，再说：确定用 Markdown 索引检索，因为保持零依赖，请记录这个决策。",
+      "expected_output": "The first save creates a checkpoint-only session file and a full index entry with decisions: 0 and one [checkpoint] subTopic, with no decision placeholders. Recall extracts Problem/Snapshot/Open questions and describes an unfinished discussion. When the decision is confirmed, the same section is upgraded in place to ### 1.; the same index entry becomes decisions: 1 and loses the checkpoint prefix. No duplicate session or section is created.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "在已初始化的临时项目中：确定使用 Markdown 保存决策，因为便于团队审阅，记下来；顺便解释一下记忆帮助和 checkpoint 怎么用。",
+      "expected_output": "Treat this as a mixed request: save the confirmed decision and update the index before presenting help, following the save-first rule. Also explain memory and checkpoint usage in Chinese. The help-only restriction does not suppress the save, and the question about checkpoint usage alone does not create a checkpoint.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "在临时项目中准备不同的 AGENTS.md 和 CLAUDE.md：两者在 AI Session Tracking 块前后都有工具专属规则，且已有一个旧跟踪块。现在重新设置记忆。再重复一次初始化。",
+      "expected_output": "Update only the AI Session Tracking section in each file, stopping at the next ## heading outside code fences or EOF. Preserve all tool-specific content before and after that section exactly. Each file contains one current tracking block; the tracking blocks match while the full files remain different. Repeating initialization adds no duplicate block and preserves all runtime memory files.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "在已初始化的临时项目中，用户只问：记忆帮助，checkpoint 怎么用？没有确认决策或请求保存。",
+      "expected_output": "Present help in Chinese without creating a decision, checkpoint, or initialization changes. Explain how to request a checkpoint; a usage question alone is not an operation request.",
+      "files": []
     }
   ]
 }

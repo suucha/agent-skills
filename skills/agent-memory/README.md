@@ -48,6 +48,8 @@ The AI will automatically:
 3. Add the tracking rules to `AGENTS.md`
 4. Add the tracking rules to `CLAUDE.md`
 
+Initialization creates `index.yaml` with `sessions: []` and preserves existing memory files, including gap records in `IMPROVEMENTS.md`. Before the first save, recall reports that no memories exist yet.
+
 ### Step 2: Just work — the system runs automatically
 
 Once set up, you don't need to do anything:
@@ -61,6 +63,8 @@ You can still explicitly say "save this" or "记一下" if you want to force a s
 
 ```
 .agent-memory/
+├── index.yaml         # session index
+├── IMPROVEMENTS.md    # missed-save records
 ├── template.md        # session template
 ├── README.md          # usage instructions
 └── YYYY-MM-DD/
@@ -100,6 +104,8 @@ Each saved session is written in the **same language the user is conversing in**
 - Chinese conversation + "save this in English" → English session file (for cross-border teams)
 
 The record is never automatically translated. User's explicit language choice always takes precedence.
+
+Session titles, subsection title text, and body content follow that language. Structural markers stay in English: the template's `##` section headings, field names, and the `### checkpoint.` prefix.
 
 ## Integrations
 

@@ -8,6 +8,7 @@ At the project root, create:
 
 ```
 .agent-memory/
+├── index.yaml                   # session index (start with sessions: [])
 ├── README.md                    # usage instructions
 ├── IMPROVEMENTS.md              # rule-gap log (self-maintaining backlog of missed saves)
 ├── template.md                  # session template (copied from this skill)
@@ -17,14 +18,18 @@ At the project root, create:
     └── ...
 ```
 
-Copy these files from the skill's `references/` directory:
+For each file below, copy it from the skill's `references/` directory **only if the destination does not exist**. Preserve existing files, especially the runtime gap records in `IMPROVEMENTS.md`, including after migration:
 - `references/README.md` → `.agent-memory/README.md`
 - `references/IMPROVEMENTS.md` → `.agent-memory/IMPROVEMENTS.md`
 - `references/template.md` → `.agent-memory/template.md`
 
+Create `.agent-memory/index.yaml` with `sessions: []` only if it does not exist. Preserve an existing index and its session entries.
+
+Before continuing, verify that all four files exist and that initialization has preserved any existing memory files and session records.
+
 ## Step 2: Update AGENTS.md and CLAUDE.md
 
-Append the tracking block to **both** files. Check first to avoid duplicates.
+For each file, create it if absent; append the tracking block if absent; otherwise replace only its existing `## AI Session Tracking` section, ending before the next `##` heading outside code fences or at end of file. Preserve all content outside the tracking section. Verify that each file contains exactly one tracking block and that the two blocks match.
 
 Read the complete block from:
 #[[file:canonical-block.md]]
@@ -82,7 +87,7 @@ Read the complete block from:
 [Optional: pending tasks]
 ```
 
-**Field names are always English** — `Problem`, `Options`, `Decision`, `Rationale` — regardless of the session's language. Only the content (and `###` section titles) translate. This ensures reliable parsing across languages.
+**Structural markers are always English**: keep the template's `##` section headings and field names (`Date`, `Participants`, `Type`, `Problem`, `Options`, `Decision`, `Rationale`, `Snapshot`, `Open questions`) unchanged. Preserve `### N.` and `### checkpoint.` prefixes. Translate the session title, subsection title text, and body content into the chosen language. This ensures reliable parsing across languages.
 
 **Critical parsing rules for agents:**
 - `### N. [title]` → a **decision point**. MUST have `**Problem:**`, `**Decision:**`, and `**Rationale:**` (Options is optional)
@@ -104,8 +109,8 @@ Read the complete block from:
 Write each saved session in the **same language the user is conversing in** — unless the user explicitly asks for a specific language.
 
 **Default behavior**: Match the user's language
-- If the user writes in Chinese, the whole session file (section headers and content) is in Chinese
-- If in English, English; and so on for any other language
+- Write session titles, subsection title text, and body content in the user's language.
+- Keep structural markers in English as specified in Session File Structure above.
 - Do not translate the user's words into another language
 
 **When user specifies a different language**:

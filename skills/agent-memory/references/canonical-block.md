@@ -1,6 +1,6 @@
 # Canonical Tracking Block
 
-This is the block to inject into both `AGENTS.md` and `CLAUDE.md` during initialization. Keep the two files identical.
+This is the block to inject into both `AGENTS.md` and `CLAUDE.md` during initialization. Keep only these tracking blocks identical; preserve each file's other content.
 
 ````markdown
 
@@ -39,8 +39,9 @@ carries it forward.**
 Two-layer recall — cheap scan first, deep read only when relevant:
 
 1. **Lightweight scan**: read `.agent-memory/index.yaml`, scan ALL sessions' `subTopics`, judge which sessions are relevant to the current question
-2. **Deep extraction**: for each relevant session, open the file, extract Problem/Decision/Rationale from each `###` subsection under `## Discussion points and decisions`
-3. **Fallback**: if no sessions match by subTopics, read the ~5 most recent sessions in full
+   If `sessions` is empty, report that no memories have been saved yet and continue with the user's task; there are no session files to read.
+2. **Deep extraction**: for each relevant session, open the file and locate `## Discussion points and decisions`. For `### N.` subsections, extract Problem/Decision/Rationale as settled decisions. For `### checkpoint.` subsections, extract Problem/Snapshot/Open questions and surface them as unfinished discussions.
+3. **Fallback**: if no sessions match by subTopics, read the ~5 most recent sessions in full, distinguishing decisions and checkpoints as above
 
 Surface it briefly: "I've reviewed the last N sessions — we decided X because Y…" This ensures you never re-litigate settled decisions or propose approaches already rejected. **This is what makes the system "memory" rather than an archive.**
 
@@ -95,9 +96,9 @@ Sometimes a discussion hasn't converged into a decision yet, but the context is 
 
 **Save flow:**
 
-1. **Decide append vs new file** — same rules as decision save (topic continuity primary, time gap secondary)
-2. Append a `### checkpoint. [Topic]` section to the session file with `Problem` / `Snapshot` / `Open questions` fields
-3. Update `index.yaml`: append `[checkpoint] [Topic]` to `subTopics` (with prefix), update `lastUpdated`, do **NOT** increment `decisions`
+1. Read the template and sanitize the content. Decide append vs new file using the same topic-continuity rules as decision save.
+2. Append a `### checkpoint. [Topic]` section inside `## Discussion points and decisions`, or create a new session file with that section and no decision placeholders, using `Problem` / `Snapshot` / `Open questions` fields.
+3. Update `index.yaml`: for an existing session, append `[checkpoint] [Topic]` to `subTopics`, update `lastUpdated`, and leave `decisions` unchanged. For a new session (including the first saved record), add the full index entry with `decisions: 0` and one `[checkpoint] [Topic]` subTopic.
 4. Tell the user it was saved as a checkpoint
 
 **Upgrade to decision (in-place rewrite):**
@@ -136,8 +137,9 @@ sessions:
 Write each saved session in the **same language the user is conversing in** — unless the user explicitly asks for a specific language.
 
 **Default behavior**: Match the user's language
-- If the user writes in Chinese, the whole session file (section headers and content) is in Chinese
-- If in English, English; and so on for any other language
+- Write session titles, subsection title text, and body content in the user's language.
+- Keep these `##` section headings in English: `Background`, `Discussion points and decisions`, `Execution plan`, `Related content`, `Lessons learned`, and `Follow-ups / TODOs`.
+- Keep field names in English: `Date`, `Participants`, `Type`, `Problem`, `Options`, `Decision`, `Rationale`, `Snapshot`, and `Open questions`. Preserve `### N.` and `### checkpoint.` prefixes; translate the title text that follows them.
 - Do not translate the user's words into another language
 
 **When user specifies a different language**:

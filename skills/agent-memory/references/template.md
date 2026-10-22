@@ -8,7 +8,7 @@ A standard session file template that supports recording multiple decision point
 >
 > Do not deviate from this structure.
 
-> **Language note:** Write the *content* in the language the user is conversing in (unless they explicitly ask for a specific language). **Field names (`Problem`, `Options`, `Decision`, `Rationale`) are always English** — they are structural markers, not content. Section titles (`### N. [title]`) and all body text translate with the session's language.
+> **Language note:** Write the session title, subsection title text, and body content in the user's language (unless they explicitly ask for another language). Keep this template's `##` section headings and field names (`Date`, `Participants`, `Type`, `Problem`, `Options`, `Decision`, `Rationale`, `Snapshot`, `Open questions`) in English. Preserve `### N.` and `### checkpoint.` prefixes; translate the title text that follows them.
 
 ---
 

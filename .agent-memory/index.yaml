@@ -3,6 +3,19 @@
 # Newest sessions first
 
 sessions:
+  - date: "2026-10-22"
+    time: "13:48"
+    topic: "agent-memory 技能整体审核"
+    file: "2026-10-22/13-48-agent-memory-review.md"
+    type: "review"
+    decisions: 5
+    lastUpdated: "2026-10-22 14:55"
+    subTopics:
+      - "审核当前技能整体"
+      - "修复整体审核发现的四项问题"
+      - "优先补齐执行分支"
+      - "精简技能主文件并保留执行约束"
+      - "提交本轮审核与精简结果"
   - date: "2026-08-22"
     time: "21:33"
     topic: "记忆存储目录改名 agent-memory → .agent-memory"
@@ -33,7 +46,7 @@ sessions:
     topic: "agent-memory 自举验证环境搭建"
     file: "2026-07-11/17-35-agent-memory-self-hosting-setup.md"
     type: "design + 开发"
-    decisions: 20
+    decisions: 40
     lastUpdated: "2026-07-11 21:20"
     subTopics:
       - "目录名从 ai-sessions 改为 agent-memory"

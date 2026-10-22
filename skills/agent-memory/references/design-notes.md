@@ -6,3 +6,11 @@
 - **Why both `AGENTS.md` and `CLAUDE.md`**: each tool reads only its own config file. If you update one, users of the other tool never see the rules.
 - **Why `index.yaml`**: scanning a directory of markdown files every session start is wasteful and slow. A single index file lets auto-recall read one file to find the recent sessions, then pull only those. The index is auto-maintained — every save appends an entry.
 - **Cross-agent memory**: the `.agent-memory/` directory (plain markdown + yaml, committed to git) is the **provider-neutral memory layer**. Each agent vendor locks memory inside its own format (Claude's, Cursor's, etc.); this directory is the escape hatch. The auto-recall step is what bridges vendor-specific sessions into this shared layer.
+
+## Deferred checkpoint automation
+
+This version supports manual checkpoints only. A `PreCompact` hook to save an unfinished discussion before context compaction is planned for a future version; it is not implemented. The design keeps checkpoints separate from settled decisions and upgrades them in place when the discussion converges.
+
+## Main-file organization
+
+The main skill keeps request routing, recall, the mandatory save-first self-check, and a shared save flow together. Initialization and help are reached only for their respective requests. Repeated explanations and future plans live here so everyday execution reads the operational rules once.
